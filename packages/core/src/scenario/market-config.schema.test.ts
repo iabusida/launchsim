@@ -13,6 +13,28 @@ describe("MarketConfigSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts a nadfun-curve config", () => {
+    const result = MarketConfigSchema.safeParse({
+      kind: "nadfun-curve",
+      virtualQuote: "180000 MON",
+      virtualBase: "1073000000000000",
+      feeBps: "1%",
+      graduationQuote: "225000 MON",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a malformed virtualQuote amount on nadfun-curve", () => {
+    const result = MarketConfigSchema.safeParse({
+      kind: "nadfun-curve",
+      virtualQuote: "180000",
+      virtualBase: "1073000000000000",
+      feeBps: "1%",
+      graduationQuote: "225000 MON",
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("accepts a cpmm config", () => {
     const result = MarketConfigSchema.safeParse({
       kind: "cpmm",

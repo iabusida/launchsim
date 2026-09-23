@@ -22,8 +22,26 @@ const CpmmMarketConfigSchema = z.strictObject({
   feeBps: PercentStringSchema,
 });
 
-/** The v1 market catalog: `PumpCurveConfig | CpmmConfig` (docs/02, docs/06). */
+/**
+ * `math/nadfun-curve`: Nad.fun's bonding curve (docs/06, ADR 0006) --
+ * shaped identically to `pump-curve` (a virtual-reserve constant product,
+ * confirmed against `BondingCurve.curves()`'s fields in Nad.fun's
+ * `contract-v3-abi` repo, 2026-09-23). Its `virtualQuote`/`graduationQuote`
+ * are NOT stable constants -- Nad.fun's virtual MON reserve has changed
+ * three times in the wild (90,000 -> 225,000 -> 180,000 MON); read them
+ * live from the contract rather than trusting a default.
+ */
+const NadfunCurveMarketConfigSchema = z.strictObject({
+  kind: z.literal("nadfun-curve"),
+  virtualQuote: AmountStringSchema,
+  virtualBase: BaseUnitsStringSchema,
+  feeBps: PercentStringSchema,
+  graduationQuote: AmountStringSchema,
+});
+
+/** The v1 market catalog: `PumpCurveConfig | CpmmConfig | NadfunCurveConfig` (docs/02, docs/06). */
 export const MarketConfigSchema = z.discriminatedUnion("kind", [
   PumpCurveMarketConfigSchema,
   CpmmMarketConfigSchema,
+  NadfunCurveMarketConfigSchema,
 ]);

@@ -19,3 +19,5 @@ export { createCpmmMarket } from "./market/cpmm-market.js";
 export type { CpmmMarketConfig } from "./market/cpmm-market.js";
 export { createPumpCurveMarket } from "./market/pump-curve-market.js";
 export type { PumpCurveMarketConfig } from "./market/pump-curve-market.js";
+export { createNadfunCurveMarket } from "./market/nadfun-curve-market.js";
+export type { NadfunCurveMarketConfig } from "./market/nadfun-curve-market.js";

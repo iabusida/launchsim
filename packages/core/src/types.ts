@@ -1,7 +1,7 @@
 import type { Rng } from "./engine/rng.js";
 
 /** Which market implementation a `Market` wraps (docs/01). */
-export type MarketKind = "math/pump-curve" | "math/cpmm";
+export type MarketKind = "math/pump-curve" | "math/cpmm" | "math/nadfun-curve";
 
 /** A market's current reserves and accrued fees, read-only. */
 export interface MarketState {

@@ -9,8 +9,8 @@ import type { ScenarioConfigInput } from "@launchsim/core";
  *
  * Retail only, deliberately: see `hourly-burn-lp.ts`'s comment.
  *
- * `docs/06`: rounding and reserve figures here are illustrative, not any
- * real launchpad's exact parameters.
+ * Market: `nadfun-curve` (docs/06, ADR 0006) -- see `hourly-burn-lp.ts`'s
+ * comment for the curve, sourcing, and graduation notes.
  */
 const scenario: ScenarioConfigInput = {
   schemaVersion: 1,
@@ -23,10 +23,11 @@ const scenario: ScenarioConfigInput = {
     supply: "1000000000",
   },
   market: {
-    kind: "cpmm",
-    quote: "30 MON",
-    base: "1073000000000000",
+    kind: "nadfun-curve",
+    virtualQuote: "30 MON",
+    virtualBase: "1073000000000000",
     feeBps: "1%",
+    graduationQuote: "1000000 MON",
   },
   mechanics: [{ kind: "feeBuyback", interval: "1h", feeShareBps: 10_000 }],
   actors: [{ group: "retail", count: 300, spend: "0.1-1 MON", over: "6h" }],

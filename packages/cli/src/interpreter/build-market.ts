@@ -1,6 +1,6 @@
 import { parseAmount, parseDecimalToBigInt, parsePercent, type ScenarioConfig } from "@launchsim/core";
 import type { Market } from "@launchsim/core";
-import { createCpmmMarket, createPumpCurveMarket } from "@launchsim/adapters";
+import { createCpmmMarket, createNadfunCurveMarket, createPumpCurveMarket } from "@launchsim/adapters";
 import type { QuoteUnit } from "@launchsim/report";
 import { quoteUnitFromAmount } from "./quote-unit.js";
 
@@ -22,6 +22,17 @@ export function buildMarket(market: ScenarioConfig["market"]): BuiltMarket {
       market: createPumpCurveMarket({
         virtualQuoteReserve: parseAmount(market.virtualQuote),
         virtualBaseReserve: parseDecimalToBigInt(market.virtualBase, 0),
+        feeBps: parsePercent(market.feeBps),
+        graduationQuoteThreshold: parseAmount(market.graduationQuote),
+      }),
+      quoteUnit: quoteUnitFromAmount(market.virtualQuote),
+    };
+  }
+  if (market.kind === "nadfun-curve") {
+    return {
+      market: createNadfunCurveMarket({
+        virtualMonReserve: parseAmount(market.virtualQuote),
+        virtualTokenReserve: parseDecimalToBigInt(market.virtualBase, 0),
         feeBps: parsePercent(market.feeBps),
         graduationQuoteThreshold: parseAmount(market.graduationQuote),
       }),

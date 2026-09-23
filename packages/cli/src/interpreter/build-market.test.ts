@@ -19,6 +19,23 @@ describe("buildMarket", () => {
     expect(quoteUnit).toEqual({ symbol: "MON", decimals: 18 });
   });
 
+  it("builds a nadfun-curve market from config", () => {
+    const { market, quoteUnit } = buildMarket({
+      kind: "nadfun-curve",
+      virtualQuote: "180000 MON",
+      virtualBase: "1073000000000000",
+      feeBps: "1%",
+      graduationQuote: "225000 MON",
+    });
+    expect(market.kind).toBe("math/nadfun-curve");
+    expect(market.state()).toEqual({
+      quoteReserve: 180_000_000_000_000_000_000_000n,
+      baseReserve: 1_073_000_000_000_000n,
+      quoteFeesCollected: 0n,
+    });
+    expect(quoteUnit).toEqual({ symbol: "MON", decimals: 18 });
+  });
+
   it("builds a cpmm market from config", () => {
     const { market, quoteUnit } = buildMarket({
       kind: "cpmm",
