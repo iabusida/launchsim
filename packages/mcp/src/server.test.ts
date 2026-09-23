@@ -102,4 +102,72 @@ describe("launchsim MCP server", () => {
     const text = textOf(result as { content: readonly { type: string; text?: string }[] });
     expect(text).toContain("not yet implemented");
   });
+
+  it("advertises the red_team_scenario tool", async () => {
+    client = await connectedClient();
+    const { tools } = await client.listTools();
+    expect(tools.map((t) => t.name)).toContain("red_team_scenario");
+  });
+
+  it("finds the smallest sniper count that breaks a group supply share check", async () => {
+    client = await connectedClient();
+    const result = await client.callTool({
+      name: "red_team_scenario",
+      arguments: {
+        scenario: {
+          ...VALID_SCENARIO,
+          actors: [{ group: "sniper", count: 1, spend: "1 MON", at: "slot:0", holdSlots: 5000 }],
+          checks: [{ kind: "groupSupplyShareBelow", group: "sniper", at: "10m", bps: 1000 }],
+        },
+        actorIndex: 0,
+        checkKind: "groupSupplyShareBelow",
+        min: 1,
+        max: 10,
+      },
+    });
+    expect(result.isError).toBeFalsy();
+    const text = textOf(result as { content: readonly { type: string; text?: string }[] });
+    expect(text).toMatch(/breaks/i);
+  });
+
+  it("reports when no break was found in range", async () => {
+    client = await connectedClient();
+    const result = await client.callTool({
+      name: "red_team_scenario",
+      arguments: {
+        scenario: {
+          ...VALID_SCENARIO,
+          actors: [
+            { group: "retail", count: 100, spend: "1 MON", over: "1m" },
+            { group: "sniper", count: 1, spend: "1 MON", at: "slot:0", holdSlots: 5000 },
+          ],
+          checks: [{ kind: "groupSupplyShareBelow", group: "sniper", at: "10m", bps: 9000 }],
+        },
+        actorIndex: 1,
+        checkKind: "groupSupplyShareBelow",
+        min: 1,
+        max: 3,
+      },
+    });
+    expect(result.isError).toBeFalsy();
+    const text = textOf(result as { content: readonly { type: string; text?: string }[] });
+    expect(text).toMatch(/no break/i);
+  });
+
+  it("returns isError for an invalid red-team request", async () => {
+    client = await connectedClient();
+    const result = await client.callTool({
+      name: "red_team_scenario",
+      arguments: {
+        scenario: VALID_SCENARIO,
+        actorIndex: 0,
+        checkKind: "maxDrawdownBelow",
+        min: 1,
+        max: 5,
+      },
+    });
+    expect(result.isError).toBe(true);
+    const text = textOf(result as { content: readonly { type: string; text?: string }[] });
+    expect(text).toContain("error:");
+  });
 });
