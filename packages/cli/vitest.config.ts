@@ -4,9 +4,6 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts", "test/**/*.test.ts"],
     exclude: ["**/*.int.test.ts"],
-    // M0 scaffold: no source or tests exist yet for this package (see docs/09-roadmap-mvp.md).
-    // Remove once the first test lands; coverage thresholds below then take effect.
-    passWithNoTests: true,
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],

@@ -17,12 +17,19 @@
     "dist"
   ],
   "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --coverage",
     "test:watch": "vitest"
   },
+  "dependencies": {
+    "@launchsim/adapters": "workspace:*",
+    "@launchsim/core": "workspace:*",
+    "@launchsim/report": "workspace:*"
+  },
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.11",
+    "tsup": "8.5.1",
     "typescript": "5.9.3",
     "vitest": "4.1.11"
   }

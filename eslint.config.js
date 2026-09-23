@@ -104,9 +104,13 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node } },
   },
 
-  // Scenario files default-export a scenario (docs/08 exception; scenarios/ arrives in a later milestone).
+  // Scenario files default-export a scenario (docs/08 exception). Not part
+  // of any package's tsconfig program, so non-type-aware TS linting only
+  // (like packages/*/*.config.ts above).
   {
     files: ["scenarios/**/*.ts"],
+    extends: [...tseslint.configs.recommended],
+    languageOptions: { globals: { ...globals.node } },
     rules: { "no-restricted-syntax": "off" },
   },
 );

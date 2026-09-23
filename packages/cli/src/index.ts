@@ -1,8 +1,8 @@
 /**
  * @packageDocumentation
- * Placeholder entry point for `@launchsim/cli`. The launchsim CLI: run, report, serve.
- *
- * No source lives here yet; this package is scaffolded in M0 and gets its
- * first real export in a later milestone (see docs/09-roadmap-mvp.md).
+ * `@launchsim/cli`: the `launchsim` CLI (`run`, `report`, `publish`, `serve`)
+ * and the `ScenarioConfig -> RunResult` interpreter it's built on. The
+ * interpreter is exported so `packages/mcp` (docs/09 Phase B) can reuse the
+ * same "run a scenario" logic without a second implementation.
  */
-export {};
+export { runScenario } from "./interpreter/run-scenario.js";
