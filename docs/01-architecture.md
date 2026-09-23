@@ -46,7 +46,8 @@
 | `share` | Hono app: `/r/:id` share page with chain record panel, badge image, OG tags | HTTP, chain reads | 100% | not started (M5-Monad) |
 | `contracts/` (Foundry) | `ReportRegistry.sol`, deploy script | on-chain | 100% lines + branches (`forge coverage`) | not started (M5-Monad) |
 | `blink` *(deferred)* | Solana Actions endpoint — Solana path only | HTTP | 100% when built | placeholder |
-| `cli` | Commands `run`, `report`, `serve`, `publish`, `verify`; loads scenario files | FS, process, HTTP | 100% (commands tested with injected I/O) | placeholder — no `ScenarioConfig → EngineConfig` builder exists yet, so there's nothing to wire `run` to |
+| `cli` | Commands `run` (done), `report`, `serve`, `publish`, `verify`; the `ScenarioConfig → RunResult` interpreter | FS, process, HTTP | 100% (commands tested with injected I/O) | `run` built (2026-09-23): loads a scenario module, writes `launchsim-report/{index.html,result.json}`, sets the exit code |
+| `mcp` | MCP server: one tool, `crash_test_scenario`, wrapping `@launchsim/cli`'s `runScenario` (docs/09 Phase B — the AI Infrastructure half of the track) | stdio (MCP transport) | 100% (real client/server integration tests via `InMemoryTransport`) | built (2026-09-23) |
 
 ### Dependency rules
 
