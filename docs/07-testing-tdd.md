@@ -78,6 +78,17 @@ export default defineConfig({
 - **Chain adapters** (`adapters/src/surfpool/**`) are excluded from the unit gate and covered by integration tests instead. Their pure helpers (instruction encoding, account mapping) live in separate files that *are* unit-tested at 100%.
 - `/* v8 ignore */` requires a same-line comment `// coverage-ignore: <reason, PR link>`. A lint rule rejects ignores without it. Expect reviewers to push back.
 
+## Solidity (contracts/) — same rules, Foundry tools
+
+- **TDD with forge:** write the failing `test_...` first (e.g. `test_RevertWhen_AlreadyRecorded`), run `forge test --match-test`, then implement.
+- **Naming:** `test_<Behavior>`, `test_RevertWhen_<Condition>`, `testFuzz_<Property>`, `invariant_<Property>`.
+- **Coverage:** `forge coverage` must show **100% lines and branches** for every contract in `src/`. Scripts are covered by a deploy test against Anvil.
+- **Fuzz:** every function with numeric or bytes inputs gets a fuzz test (`[fuzz] runs = 1000` in CI profile).
+- **Invariants:** stateful invariant tests with a handler contract for any state that must never change or must only grow.
+- **Events and errors:** assert exact events with `vm.expectEmit` and exact custom errors with `vm.expectRevert(abi.encodeWithSelector(...))`.
+- **Static analysis:** `slither .` in CI; high/medium findings fail the build.
+- **Formatting:** `forge fmt --check` in CI.
+
 ## Mutation testing
 
 - Stryker with the Vitest runner on `packages/core`.
@@ -110,7 +121,7 @@ Pin `seed` in CI for reproducibility; run an unpinned job nightly to explore new
 
 ## Determinism test
 
-`core/test/determinism.test.ts` runs every file in `scenarios/` twice and asserts the canonical JSON is identical. It also asserts that changing only the seed changes the result (proves the RNG is wired in).
+`core/test/determinism.test.ts` runs a scenario twice and asserts the canonical JSON is identical. It also asserts that changing only the seed changes the result (proves the RNG is wired in). Today it builds its scenario inline in the test file, since `scenarios/` and the scenario DSL don't exist yet (see `docs/09` Phase A); once they do, this test should run every file in `scenarios/` instead.
 
 ## What good tests look like here
 

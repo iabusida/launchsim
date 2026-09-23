@@ -7,8 +7,8 @@
                         │
                         ▼
                  ┌─────────────┐     Market (interface)
-                 │   Engine    │◄──── MathMarket   (math mode, v1)
-                 │  (core)     │◄──── ChainMarket  (surfpool mode, later)
+                 │   Engine    │◄──── MathMarket   (math mode: pump, cpmm, nadfun)
+                 │  (core)     │◄──── ChainMarket  (anvil fork of Monad, later; surfpool for Solana)
                  └─────┬───────┘
       Clock ──► events │ actors decide → orders → market executes → mechanics run
                        ▼
@@ -21,20 +21,32 @@
                  RunResult (versioned JSON, deterministic)
                   │            │                 │
                   ▼            ▼                 ▼
-            terminal text   HTML report     Blink endpoint
-             (report)        (report)         (blink)
+            terminal text   HTML report     sha256(RunResult)
+             (report)        (report)            │
+                                                 ▼
+                                   ReportRegistry.record(...) on Monad
+                                   (human signs with own wallet; cli prints the call)
+                                                 │
+                                                 ▼
+                                   share page /r/:id  ── reads chain, recomputes hash
+                                   "Recorded on Monad · hash matches"
 ```
+
+> Current target is Monad (ADR 0006). The Solana Blink endpoint (`blink`) is the deferred second path.
 
 ## Packages
 
-| Package | Responsibility | I/O allowed | Coverage |
-|---|---|---|---|
-| `core` | Clock, RNG, engine loop, `Market` interface, math models, actors, mechanics, checks, `RunResult` builder | **None** | 100% + mutation ≥ 85% |
-| `testkit` | Builders (`aScenario()`, `aPool()`), fixtures, fake market | None | n/a (dev-only) |
-| `adapters` | `MarketAdapter` implementations: `math/pump-curve`, `math/cpmm` now; `surfpool/*` later | Chain RPC (surfpool only) | 100% for math; integration for surfpool |
-| `report` | `RunResult` → terminal text, JSON file, HTML with inline SVG | Filesystem via injected writer | 100% |
-| `blink` | Hono app implementing Solana Actions GET/OPTIONS, `actions.json`, badge image | HTTP | 100% |
-| `cli` | Commands `run`, `report`, `serve`; loads scenario files | FS, process, HTTP | 100% (commands tested with injected I/O) |
+| Package | Responsibility | I/O allowed | Coverage | Status |
+|---|---|---|---|---|
+| `core` | Clock, RNG, engine loop, `Market` interface, math models, actors, mechanics, checks, `RunResult` builder | **None** | 100% + mutation ≥ 85% | built (M0–M4) |
+| `testkit` | Builders (`aScenario()`, `aPool()`), fixtures, fake market | None | n/a (dev-only) | placeholder |
+| `adapters` | `MarketAdapter` implementations: `math/pump-curve`, `math/cpmm` now, `math/nadfun-curve` next; `anvil/*` later | Chain RPC (anvil only) | 100% for math; integration for chain adapters | pump-curve + cpmm built |
+| `report` | `RunResult` → terminal text, JSON file, HTML with inline SVG | Filesystem via injected writer | 100% | built (M0–M4) |
+| `registry` | viem client: report hash, build `record` call, read records | Chain RPC (reads only) | 100% (fake transport) + Anvil integration | not started (M5-Monad) |
+| `share` | Hono app: `/r/:id` share page with chain record panel, badge image, OG tags | HTTP, chain reads | 100% | not started (M5-Monad) |
+| `contracts/` (Foundry) | `ReportRegistry.sol`, deploy script | on-chain | 100% lines + branches (`forge coverage`) | not started (M5-Monad) |
+| `blink` *(deferred)* | Solana Actions endpoint — Solana path only | HTTP | 100% when built | placeholder |
+| `cli` | Commands `run`, `report`, `serve`, `publish`, `verify`; loads scenario files | FS, process, HTTP | 100% (commands tested with injected I/O) | placeholder — no `ScenarioConfig → EngineConfig` builder exists yet, so there's nothing to wire `run` to |
 
 ### Dependency rules
 
@@ -59,7 +71,7 @@
 ## Two engine modes (ADR 0002)
 
 1. **Math mode (v1).** `MathMarket` implements curve/pool math in pure TypeScript with `bigint`. Fast (48h of trading in well under a second), fully deterministic, trivially unit-testable.
-2. **Chain mode (later).** `ChainMarket` sends real transactions to a local Surfpool/LiteSVM instance running the actual launchpad program (or a mainnet-forked copy of it). Slower, but tests the real program.
+2. **Chain mode (later).** `ChainMarket` sends real transactions to a local Anvil fork of Monad running the actual launchpad contract (Surfpool/LiteSVM for the deferred Solana path). Slower, but tests the real program.
 
 **Parity tests** run the same scenario in both modes and require results within a documented tolerance. Parity is what lets us trust math mode for fast iteration.
 
@@ -69,7 +81,7 @@
 /** A market the engine can trade against. */
 export interface Market {
   readonly kind: MarketKind;
-  state(): MarketState;                       // reserves, supply, fees collected
+  state(): MarketState;                       // reserves, fees collected
   quoteBuy(quoteIn: bigint): Quote;           // no mutation
   quoteSell(baseIn: bigint): Quote;
   buy(order: BuyOrder): TradeOutcome;         // mutates; returns fill or failure reason
@@ -86,17 +98,17 @@ export interface Actor {
 
 export interface Mechanic {
   readonly id: string;
-  due(slot: Slot): boolean;
+  due(slot: number): boolean;
   apply(ctx: MechanicContext): MechanicEvent;
 }
 
 export interface Check {
   readonly id: string;
-  evaluate(timeline: Timeline, ledger: Ledger): CheckResult;
+  evaluate(ledger: Ledger): CheckResult;      // ledger carries the timeline and trade log
 }
 ```
 
-Full type definitions live in `packages/core/src/types.ts`; this doc is kept in sync.
+Full type definitions live in `packages/core/src/types.ts`; this doc is kept in sync. (The `Check` interface above reflects the actual implementation — a single `ledger` argument, not separate `timeline`/`ledger` arguments — since the two drifted apart during M2–M4.)
 
 ## Error model
 

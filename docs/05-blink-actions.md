@@ -1,5 +1,7 @@
 # 05 — Blink / Solana Actions
 
+> **Deferred (ADR 0006).** This is the Solana path, planned for after the Monad hackathon. For the current build, see `12-report-registry-and-share.md`. Do not implement this now.
+
 The `blink` package serves each crash-test report as a **Solana Action**, so a link posted on X (or elsewhere) unfurls as a Blink card in clients that support it (Phantom, Solflare browser extensions; others via dial.to-style interstitials).
 
 > Verify against the current Solana Actions spec (`solana.com/docs/tools/actions`) and `@solana/actions` before implementing. Spec details below reflect our understanding at time of writing; tests should assert against the spec, not this doc.

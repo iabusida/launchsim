@@ -1,74 +1,80 @@
-# 09 — Roadmap and MVP
+# 09 — Roadmap and MVP (Monad hackathon)
 
-## MVP two-week spike
+Goal: by **Oct 13, 2026**, one command — or one agent, via the MCP tool — shows the hourly LP burn draining a Nad.fun-style pool and the fee-funded buyback holding it; both reports are recorded on Monad and viewable on a share page that checks them against the chain. Then real launchpad feedback.
 
-Goal: from one command, show the hourly LP burn draining the pool and the fee-funded buyback not draining it, with a report page and a Blink for each. Then put it in front of launchpad builders.
+With AI-assisted coding, **writing code is not the bottleneck**. The plan budgets most calendar time for what AI can't compress: reviewing and verifying the work, getting real parameters, deploying, getting feedback from launchpad teams, and the demo.
 
-Every task below is done with TDD (`docs/07`). Each milestone ends with green CI and 100% coverage.
+**Track fit note (2026-09-23):** the track is "Trust/Identity **& AI Infrastructure**". The `ReportRegistry` covers Trust; nothing covered AI Infrastructure until now. The MCP tool (`packages/mcp`, exposing "crash-test this token" to Claude Code/Cursor/any MCP client) is pulled forward from the "after the hackathon" table into Phase B, and the AI red-team (an agent searching scenario parameters for the smallest attack that breaks a check) is pulled forward from Phase D stretch into Phase B. Both are now core scope, not stretch.
 
-### M0 — Repo foundation (days 1–2)
+## Status
 
-- [ ] pnpm workspace, `tsconfig.base.json`, ESLint, Prettier, Vitest configs with 100% thresholds
-- [ ] Packages scaffolded: `core`, `testkit`, `adapters`, `report`, `blink`, `cli`
-- [ ] CI workflow: lint, typecheck, test+coverage (see `docs/11`)
-- [ ] Stryker config for `core`
-- [ ] First test: `ceilDiv` (red → green)
+| Milestone | Scope | Status |
+|---|---|---|
+| M0 | Repo foundation, CI, coverage gates | done |
+| M1 | Money math, CPMM, pump curve, scenario schema | done |
+| M2 | RNG, clock, engine loop, actors | done |
+| M3 | Mechanics (LP burn, fee buyback), checks | done |
+| M4 | RunResult, terminal output, HTML report | done |
+| ~~M5~~ | ~~Solana Blink~~ | deferred (Solana path) |
 
-### M1 — Money math and markets (days 3–4)
+M0–M4 passed the Phase A review on 2026-09-23: lint/typecheck clean, 100% coverage on `core`/`adapters`/`report`, Stryker 92.74% on `core`. Two real gaps came out of that review, tracked as M5-Monad work below rather than reopening M3/M4: the scenario DSL (`scenario()`, `actors.*()`) and its `ScenarioConfig → EngineConfig` interpreter were never built, so `scenarios/hourly-burn-lp.ts` and `fee-buyback.ts` don't exist as files — only as hard-coded scenario logic inside one capstone test; and `RunResult` has no `groups` field though `docs/04` specifies one.
 
-- [ ] `core/math`: `ceilDiv`, `mulDiv`, `bpsOf`, `Price`, unit parsing (`"2 SOL"`, `"5%"`, `"6h"`)
-- [ ] `math/cpmm`: buy, sell, fees, `burnFromPool`, quotes; invariants as property tests
-- [ ] `math/pump-curve`: virtual reserves, graduation to CPMM
-- [ ] Zod schema for `ScenarioConfig`
+## Phase A — Verify what exists (day 1) — done 2026-09-23
 
-### M2 — Engine, clock, actors (days 5–7)
+- [x] Human review of M0–M4: tests pass, 100% coverage, no `v8 ignore`, determinism test passes
+- [x] Property tests exist for `k` never decreasing (`cpmm.prop.test.ts`, `pump-curve.prop.test.ts`). Pool-favoring rounding has no single dedicated property test, but is proven by two composed ones: `mulDiv`'s floor property and the CPMM buy-then-sell round-trip property.
+- [x] Ran `hourly-burn-lp` and `fee-buyback` by hand (via a reconstruction of the capstone test's scenario, since the files don't exist yet — see above); results make economic sense: the LP burn scenario fails `quoteNeverBelowPctOfPeak` (pool fell to 49% of peak), the fee-buyback scenario passes it.
+- [x] Nad.fun research done (2026-09-23): confirmed its `BondingCurve.curves()` is a virtual-reserve constant-product curve — same shape as `math/pump-curve`. The virtual MON reserve has changed three times in the wild (90,000 → 225,000 → 180,000 MON); **do not hardcode it** — read live via `config()`/`curves()` and cite the block queried. Trading fee commonly cited as 1% but is now creator-configurable per token (read `feeConfig()`). Contract addresses found via search need re-verification against the live gitbook/explorer before use.
 
-- [ ] Seeded `Rng` with `fork(id)`; `Clock` in slots; event queue with deterministic tie-breaks
-- [ ] Engine loop: decide → order by priority fee → execute → mechanics → sample
-- [ ] Actors: `retail`, `sniper`, `whale`, `panicSeller` (M2), `bundler`, `flipper` (M2 stretch)
-- [ ] Determinism test across scenarios
+## Phase B — M5-Monad build (days 1–3 of coding, resequenced 2026-09-23)
 
-### M3 — Mechanics and checks (days 8–9)
+Order matters here: the DSL unblocks the scenario files, the MCP tool, and the AI red-team; the SOL→quote rename unblocks the DSL's unit strings; the registry contract has no chain dependency and can be built and TDD'd against Anvil at any point.
 
-- [ ] `lpBurn` with stepped schedule; `feeBuyback`
-- [ ] Checks: `quoteNeverBelowPctOfPeak`, `groupSupplyShareBelow`, `maxDrawdownBelow`
-- [ ] Scenarios: `hourly-burn-lp`, `fee-buyback`, `sniper-block0`, `baseline`, with pinned outcomes
+1. [x] **SOL→quote rename** (done 2026-09-23). `parseAmount`/`AmountStringSchema`/`AmountRangeStringSchema` accept `MON` (18 decimals) and `SOL` (9, deferred path); `formatLamports` became `formatQuoteAmount(amount, {symbol, decimals})` in `packages/report`, with the unit inferred per-scenario from its own market config (`packages/cli/src/interpreter/quote-unit.ts`), not hard-coded. Found and fixed a real bug along the way: `sample-amount-range.ts`'s range sampling was capped at `Number.MAX_SAFE_INTEGER`, which MON's 18 decimals blow through for any human-sized range — rewrote it as an unbounded bigint mask-and-reject sampler (property-verified unbiased; mutation score 52.5% → 95%).
+2. [x] **Scenario interpreter + shipped scenarios** (done 2026-09-23). Scoped down for the hackathon clock: scenarios ship as plain `ScenarioConfig` object literals (docs/02: "the plain config is the real contract"), not the fluent `scenario()`/`actors.snipers()` DSL sugar — that sugar is still deferred. Built `parseAmountRange`, `parseBaseUnitsRange`, `parseSlotOrDuration` (missing math helpers docs/02 assumed existed), a `ScenarioConfig → RunResult` interpreter in `packages/cli/src/interpreter/` (lives in `cli`, not `core`, since it needs `adapters`+`core`+`report` together), and `scenarios/hourly-burn-lp.ts` + `fee-buyback.ts`. Also fixed a real schema bug found while wiring this up: `panicSeller`'s `holdings` was typed as a quote-denominated `AmountRangeStringSchema` ("0.1-1 MON") for a field that's actually base-unit token holdings — added `BaseUnitsRangeStringSchema` and fixed it. **Not yet done:** `cli run` (the actual command-line entry point with file I/O) — the interpreter and scenario files work end-to-end today only via direct import (`packages/cli/src/scenarios.test.ts`), not yet via a real CLI invocation.
+   - **Calibration finding, worth reading before adding actors back to these two scenarios:** a seed sweep run through the real interpreter showed that adding snipers or a whale to `hourly-burn-lp`/`fee-buyback` makes the `quoteNeverBelowPctOfPeak` check's outcome dominated by that actor's own entry/exit (a "worst dip from peak" check is inherently sensitive to the single largest trade, not the mechanic), rather than the burn-vs-buyback difference — the fee-buyback mechanic passed only ~50-65% of seeds with snipers/whale present, vs. robustly (100% of seeds sampled) with retail only. Ship these two scenarios retail-only; sniper/whale effects belong in a dedicated `sniper-block0.ts`-style scenario, which the docs/02 shipped-scenarios table already anticipates as separate.
+3. [ ] **`packages/mcp`** — an MCP server wrapping `run`/`report`: an agent (Claude Code, Cursor, any MCP client) can ask "crash-test this token" and get a report back. This is the AI Infrastructure half of the track.
+4. [ ] **AI red-team.** A search routine (start simple — randomized/hill-climbing over actor parameters within bounds) that looks for the smallest parameter change that flips a check from pass to fail; surfaced through the MCP tool and in the demo.
+5. [ ] **`math/nadfun-curve` adapter.** Live-queried parameters per the Phase A research above, cited with the query date/block. Re-point `hourly-burn-lp`/`fee-buyback` at it; re-pin expected outcomes.
+6. [ ] **`contracts/ReportRegistry.sol`** — TDD with forge, 100% `forge coverage`, fuzz + invariant tests, Slither clean. No chain RPC needed (Anvil only).
+7. [ ] **`packages/registry`** — viem client, ABI drift test, Anvil integration test.
+8. [ ] **`packages/share`** — `/r/:id` with chain record panel, badge PNG, OG tags.
+9. [ ] **`cli publish` / `cli verify`**.
+10. [ ] **Deploy registry to Monad testnet → then mainnet; verify source on explorer.** Needs an RPC URL, chain ID, and a wallet from the project owner (never a key in this tool) — blocked until provided.
 
-### M4 — Report (days 10–11)
+## Phase C — Real-world proof (runs in parallel from day 1)
 
-- [ ] Canonical `RunResult` JSON + scenario hash
-- [ ] Terminal renderer + exit codes
-- [ ] HTML report with inline SVG charts, "simulated / not simulated" section, golden tests, axe check
+- [ ] Research: 30 min/day on X/Discord/GitHub for sniper/bundle pain on Nad.fun and Monad (see sources list in project notes)
+- [ ] DM Nad.fun team and 3–5 other Monad builders: "How do you test your curve and fees against snipers today?"
+- [ ] Look at 2–3 real Nad.fun launches on-chain for sniper/bundle patterns to motivate the demo
 
-### M5 — Blink (days 12–13)
+This phase has the highest score-per-hour of anything in the plan per `docs/00`'s own go/no-go criteria (a launchpad team engaging matters more than polish) and doesn't block on any of Phase B — start it now, independent of the build.
 
-- [ ] Hono app: `actions.json`, GET/OPTIONS action, `/r/:runId`, badge PNG
-- [ ] Contract tests against Actions spec schema; CORS and header tests
-- [ ] `launchsim serve` command; deploy to a small host (Vercel/Fly/Cloudflare) for the demo
+## Phase D — Stretch (only if A–B are solid)
 
-### M6 — Demo and outreach (day 14)
+- [ ] Anvil fork of Monad: run one short scenario against Nad.fun's real contracts; parity check vs. math mode
+- [ ] Nansen bounty angle: use wallet labels to shape sniper/bundler actor profiles
 
-- [ ] README with GIF of the before/after run
-- [ ] Publish both reports and Blinks
-- [ ] Short video + X thread: "The token mechanic that drained my ERC-20, caught in 30 seconds"
-- [ ] DM five smaller Solana launchpad teams: "Want this on every launch on your platform?"
+(The AI red-team and MCP tool moved to Phase B — see the track-fit note above.)
 
-## Go / no-go after the spike
+## Phase E — Submission (last 3–4 days, fixed)
 
-- **Keep going** if at least one launchpad team asks to try it or asks how to integrate, or developers ask to run it on their own token.
-- **Rethink** if the demo gets likes but no launchpad replies. Fallback direction: AI-agent tooling (MCP server for Solana), which reuses the engine and has built-in distribution through agent tool directories.
+- [ ] Demo video, README GIF, submission text (see `docs/13-hackathon-submission.md`)
+- [ ] Two live reports recorded on Monad; share links working
+- [ ] Buffer for surprises
 
-## After the spike (only if "keep going")
+## Go / no-go after judging
+
+- **Keep going** if a launchpad team engages or developers ask to run it on their own launches — regardless of placement.
+- **Rethink** if the demo gets attention but no builder engagement. Fallback: AI-agent tooling (MCP server) reusing the engine — already pulled into Phase B, not purely a fallback anymore.
+
+## After the hackathon
 
 | Phase | Work |
 |---|---|
-| v0.2 | Surfpool chain mode; `surfpool/meteora-dbc` adapter; parity tests |
-| v0.3 | Replay real launches; first fitted actor profiles; profile provenance in reports |
-| v0.4 | MCP server so Claude Code/Cursor can run "crash-test this token" |
-| v0.5 | Launchpad integration kit: webhook to auto-run a scenario pack on each new token and publish its Blink |
-| v0.6 | EVM (Base, Robinhood Chain) with the same scenario format |
-| later | Web playground (editor + fork + simulation + report in one tab); on-chain modules repo (anti-sniper, fee-funded burn) crash-tested by the engine before each release |
-
-## Grants
-
-Once v0.1 works on real scenarios, apply for Solana ecosystem developer-tooling grants (Superteam, Solana Foundation). Keep a running `docs/grant-notes.md` with usage numbers and demos.
+| v0.2 | Anvil chain mode for Nad.fun; parity tests |
+| v0.3 | Replay real launches; fitted actor profiles |
+| v0.4 | ~~MCP server~~ done in Phase B; extend with more scenario templates |
+| v0.5 | Robinhood Chain (Pons) and Base adapters |
+| v0.6 | Solana path: pump curve, Surfpool, Blink |
+| later | Web playground; launchpad integration webhooks; on-chain modules repo |

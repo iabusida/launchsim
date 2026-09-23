@@ -17,7 +17,7 @@ None of that shows up in a unit test. It shows up after real money is lost.
 1. Runs a launch setup inside a simulated market with scripted actors.
 2. Evaluates checks that must hold.
 3. Produces a deterministic `RunResult`, a terminal summary, and an HTML report.
-4. Serves the report as a Solana Blink so it can travel on X and elsewhere.
+4. Records the report's hash on-chain in a `ReportRegistry` (Monad first, ADR 0006/0007) so it can be checked and shared; the deferred Solana path (ADR 0006) instead serves it as a Blink so it can travel on X.
 
 ## Users (in priority order)
 
@@ -30,22 +30,22 @@ Indirect beneficiary: **retail buyers**, who can read a report before buying.
 
 ## Scope for v1
 
-- Solana only.
-- Math mode (pure TypeScript market models) for pump-style curves and constant-product pools.
+- Monad first (ADR 0006); Solana and the Blink are deferred.
+- Math mode (pure TypeScript market models) for pump-style curves, constant-product pools, and a Nad.fun-style curve.
 - Six actor types, three core checks, two mechanics (LP burn, fee-funded buyback-and-burn).
-- CLI, HTML report, Blink endpoint.
+- CLI, HTML report, on-chain `ReportRegistry` + share page (Monad).
 
 ## Non-goals (for now)
 
 - A web IDE or playground (later phase).
-- EVM support (later: Base and Robinhood Chain first).
+- The Solana Blink endpoint (later: after the Monad hackathon submission).
 - Auditing arbitrary program code for bugs.
 - Running live trading strategies or sniping.
 - Claiming any token is safe.
 
 ## Known neighbors
 
-- **preflight** (GitHub): simulation and mechanism-design toolkit for Meteora Dynamic Bonding Curves. Closest prior art. launchsim differs by being launchpad-agnostic, adding replay-calibrated actors later, and producing a public report/Blink.
+- **preflight** (GitHub): simulation and mechanism-design toolkit for Meteora Dynamic Bonding Curves. Closest prior art. launchsim differs by being launchpad-agnostic, adding replay-calibrated actors later, and producing a public, on-chain-recorded report.
 - **Gauntlet, Chaos Labs:** agent-based simulation for large DeFi lending protocols, sold as consulting.
 - **Meteora Anti-Sniper Suite, Orca Wavebreak, Metaplex auctions:** launch-time protections. launchsim can *test* these rather than compete with them.
 
@@ -54,6 +54,6 @@ Before building a feature, check whether a neighbor already does it well. Prefer
 ## Success criteria for the MVP spike
 
 - Hourly-burn scenario fails the liquidity check; fee-funded buyback scenario passes it, from one command.
-- Report page and Blink published for both runs.
+- Report page published for both runs, recorded on Monad, checkable on the share page.
 - **Keep going** if at least one launchpad team asks to try it or asks how to integrate.
 - **Rethink** if the demo gets likes but no launchpad replies.
