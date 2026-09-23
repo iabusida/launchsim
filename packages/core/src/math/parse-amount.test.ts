@@ -37,4 +37,16 @@ describe("parseAmount", () => {
   it("accepts more than one space between the value and the unit", () => {
     expect(parseAmount("2  SOL")).toBe(2_000_000_000n);
   });
+
+  it("converts a whole MON amount to wei (18 decimals)", () => {
+    expect(parseAmount("2 MON")).toBe(2_000_000_000_000_000_000n);
+  });
+
+  it("converts a fractional MON amount to wei", () => {
+    expect(parseAmount("0.5 MON")).toBe(500_000_000_000_000_000n);
+  });
+
+  it("preserves the smallest MON unit, one wei", () => {
+    expect(parseAmount("0.000000000000000001 MON")).toBe(1n);
+  });
 });

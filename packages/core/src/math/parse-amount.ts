@@ -3,22 +3,31 @@ import { parseDecimalToBigInt } from "./parse-decimal.js";
 /** Lamports per SOL: SOL has 9 decimal places on-chain. */
 const LAMPORTS_PER_SOL_DECIMALS = 9;
 
+/** Wei per MON: MON is Monad's native gas token, 18 decimal places like every EVM chain's native asset. */
+const WEI_PER_MON_DECIMALS = 18;
+
 const AMOUNT_STRING = /^(\S+)\s+(\S+)$/;
 
-/** Units `parseAmount` accepts, mapped to their decimal places. */
+/**
+ * Units `parseAmount` accepts, mapped to their decimal places. Quote units
+ * across every chain launchsim targets (docs/06); the engine itself only
+ * ever sees the resulting bigint base units, never a unit string.
+ */
 const UNIT_DECIMALS: Readonly<Record<string, number>> = {
   SOL: LAMPORTS_PER_SOL_DECIMALS,
+  MON: WEI_PER_MON_DECIMALS,
 };
 
 /**
- * Parses a scenario amount string, e.g. `"2 SOL"`, into lamports.
+ * Parses a scenario amount string, e.g. `"2 MON"` or `"2 SOL"`, into the
+ * unit's smallest denomination (wei for MON, lamports for SOL).
  *
- * @param input - A decimal amount followed by a unit, e.g. `"0.5 SOL"`.
- * @returns The amount in the unit's smallest denomination (lamports for SOL).
+ * @param input - A decimal amount followed by a unit, e.g. `"0.5 MON"`.
+ * @returns The amount in the unit's smallest denomination.
  * @throws {RangeError} If the format is malformed or the unit is unsupported.
  * @example
  * ```ts
- * parseAmount("2 SOL"); // 2_000_000_000n
+ * parseAmount("2 MON"); // 2_000_000_000_000_000_000n
  * ```
  */
 export function parseAmount(input: string): bigint {

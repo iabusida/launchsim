@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   AmountRangeStringSchema,
   AmountStringSchema,
+  BaseUnitsRangeStringSchema,
   DurationStringSchema,
   PercentStringSchema,
   SlotOrDurationStringSchema,
@@ -65,12 +66,14 @@ const WhaleActorConfigSchema = z.strictObject({
 
 /**
  * `panicSeller`: holders who sell everything when drawdown from peak
- * exceeds a threshold. Default: 30% drawdown (docs/03).
+ * exceeds a threshold. Default: 30% drawdown (docs/03). `holdings` is a
+ * base-unit (token) range, not a quote amount -- these actors start
+ * already holding the launched token, they never buy it.
  */
 const PanicSellerActorConfigSchema = z.strictObject({
   group: z.literal("panicSeller"),
   count: PositiveIntSchema,
-  holdings: AmountRangeStringSchema,
+  holdings: BaseUnitsRangeStringSchema,
   triggerDrawdown: PercentStringSchema.default("30%"),
 });
 

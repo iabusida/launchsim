@@ -36,3 +36,10 @@ export const ScenarioConfigSchema = z.strictObject({
 
 /** The parsed, defaulted form of a {@link ScenarioConfigSchema}. */
 export type ScenarioConfig = z.infer<typeof ScenarioConfigSchema>;
+
+/**
+ * The pre-parse, pre-defaulted shape authors write (docs/02): fields with a
+ * `.default(...)` in the schema are optional here. `ScenarioConfigSchema.parse`
+ * turns this into a full {@link ScenarioConfig}.
+ */
+export type ScenarioConfigInput = z.input<typeof ScenarioConfigSchema>;

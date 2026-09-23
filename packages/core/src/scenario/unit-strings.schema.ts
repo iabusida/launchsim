@@ -7,19 +7,22 @@ import { z } from "zod";
 // still happens via the dedicated parse-*.ts helpers, not here (docs/08:
 // "Inside core, types are trusted" -- the string is the trusted value).
 
-/** A single amount, e.g. `"2 SOL"` or `"0.5 SOL"` (see `math/parse-amount.ts`). */
+/** A single amount, e.g. `"2 MON"` or `"2 SOL"` (deferred path) (see `math/parse-amount.ts`). */
 export const AmountStringSchema = z
   .string()
-  .regex(/^[\d.]+\s+SOL$/, 'expected an amount like "2 SOL"');
+  .regex(/^[\d.]+\s+(MON|SOL)$/, 'expected an amount like "2 MON"');
 
 /**
- * A single amount or an inclusive range, e.g. `"2 SOL"` or `"0.1-1 SOL"`.
+ * A single amount or an inclusive range, e.g. `"2 MON"` or `"0.1-1 MON"`.
  * A range is sampled with the seeded `Rng` (docs/02); that sampling is an
  * engine concern (M2), not this schema's.
  */
 export const AmountRangeStringSchema = z
   .string()
-  .regex(/^[\d.]+(-[\d.]+)?\s+SOL$/, 'expected an amount like "2 SOL" or a range like "0.1-1 SOL"');
+  .regex(
+    /^[\d.]+(-[\d.]+)?\s+(MON|SOL)$/,
+    'expected an amount like "2 MON" or a range like "0.1-1 MON"',
+  );
 
 /**
  * A plain decimal string with no unit, e.g. `"1073000000000000"`, used for
@@ -29,6 +32,18 @@ export const AmountRangeStringSchema = z
 export const BaseUnitsStringSchema = z
   .string()
   .regex(/^\d+(\.\d+)?$/, 'expected a plain decimal string like "1000000"');
+
+/**
+ * A plain decimal amount or inclusive range with no unit, e.g.
+ * `"1000000"` or `"100-200"`, used for base-unit ranges (e.g. a
+ * panic-seller's token holdings) sampled with the seeded `Rng` (docs/02).
+ */
+export const BaseUnitsRangeStringSchema = z
+  .string()
+  .regex(
+    /^\d+(\.\d+)?(-\d+(\.\d+)?)?$/,
+    'expected a plain decimal or range like "1000000" or "100-200"',
+  );
 
 /** A percentage, e.g. `"5%"` or `"0.5%"` (see `math/parse-percent.ts`). */
 export const PercentStringSchema = z.string().regex(/^[\d.]+%$/, 'expected a percentage like "5%"');

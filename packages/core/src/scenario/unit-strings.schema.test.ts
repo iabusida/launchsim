@@ -3,26 +3,35 @@ import {
   AmountStringSchema,
   AmountRangeStringSchema,
   BaseUnitsStringSchema,
+  BaseUnitsRangeStringSchema,
   PercentStringSchema,
   DurationStringSchema,
   SlotOrDurationStringSchema,
 } from "./unit-strings.schema.js";
 
 describe("AmountStringSchema", () => {
-  it("accepts a whole SOL amount", () => {
+  it("accepts a whole MON amount", () => {
+    expect(AmountStringSchema.safeParse("2 MON").success).toBe(true);
+  });
+
+  it("accepts a fractional MON amount", () => {
+    expect(AmountStringSchema.safeParse("0.5 MON").success).toBe(true);
+  });
+
+  it("accepts a whole SOL amount (deferred Solana path)", () => {
     expect(AmountStringSchema.safeParse("2 SOL").success).toBe(true);
   });
 
-  it("accepts a fractional SOL amount", () => {
+  it("accepts a fractional SOL amount (deferred Solana path)", () => {
     expect(AmountStringSchema.safeParse("0.5 SOL").success).toBe(true);
   });
 
   it("accepts more than one space between the value and the unit", () => {
-    expect(AmountStringSchema.safeParse("2  SOL").success).toBe(true);
+    expect(AmountStringSchema.safeParse("2  MON").success).toBe(true);
   });
 
   it("rejects a range", () => {
-    expect(AmountStringSchema.safeParse("0.1-1 SOL").success).toBe(false);
+    expect(AmountStringSchema.safeParse("0.1-1 MON").success).toBe(false);
   });
 
   it("rejects an unsupported unit", () => {
@@ -30,11 +39,11 @@ describe("AmountStringSchema", () => {
   });
 
   it("rejects leading content before the value", () => {
-    expect(AmountStringSchema.safeParse("x2 SOL").success).toBe(false);
+    expect(AmountStringSchema.safeParse("x2 MON").success).toBe(false);
   });
 
   it("rejects trailing content after the unit", () => {
-    expect(AmountStringSchema.safeParse("2 SOL extra").success).toBe(false);
+    expect(AmountStringSchema.safeParse("2 MON extra").success).toBe(false);
   });
 
   it("rejects a non-string", () => {
@@ -44,40 +53,48 @@ describe("AmountStringSchema", () => {
   it("reports a helpful error message", () => {
     const result = AmountStringSchema.safeParse("nope");
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toBe('expected an amount like "2 SOL"');
+    expect(result.error?.issues[0]?.message).toBe('expected an amount like "2 MON"');
   });
 });
 
 describe("AmountRangeStringSchema", () => {
-  it("accepts a single amount", () => {
+  it("accepts a single MON amount", () => {
+    expect(AmountRangeStringSchema.safeParse("2 MON").success).toBe(true);
+  });
+
+  it("accepts a MON range", () => {
+    expect(AmountRangeStringSchema.safeParse("0.1-1 MON").success).toBe(true);
+  });
+
+  it("accepts a single SOL amount (deferred Solana path)", () => {
     expect(AmountRangeStringSchema.safeParse("2 SOL").success).toBe(true);
   });
 
-  it("accepts a range", () => {
+  it("accepts a SOL range (deferred Solana path)", () => {
     expect(AmountRangeStringSchema.safeParse("0.1-1 SOL").success).toBe(true);
   });
 
   it("accepts more than one space between the value and the unit", () => {
-    expect(AmountRangeStringSchema.safeParse("0.1-1  SOL").success).toBe(true);
+    expect(AmountRangeStringSchema.safeParse("0.1-1  MON").success).toBe(true);
   });
 
   it("rejects a malformed range", () => {
-    expect(AmountRangeStringSchema.safeParse("0.1- SOL").success).toBe(false);
+    expect(AmountRangeStringSchema.safeParse("0.1- MON").success).toBe(false);
   });
 
   it("rejects leading content before the value", () => {
-    expect(AmountRangeStringSchema.safeParse("x2 SOL").success).toBe(false);
+    expect(AmountRangeStringSchema.safeParse("x2 MON").success).toBe(false);
   });
 
   it("rejects trailing content after the unit", () => {
-    expect(AmountRangeStringSchema.safeParse("2 SOL extra").success).toBe(false);
+    expect(AmountRangeStringSchema.safeParse("2 MON extra").success).toBe(false);
   });
 
   it("reports a helpful error message", () => {
     const result = AmountRangeStringSchema.safeParse("nope");
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe(
-      'expected an amount like "2 SOL" or a range like "0.1-1 SOL"',
+      'expected an amount like "2 MON" or a range like "0.1-1 MON"',
     );
   });
 });
@@ -111,6 +128,36 @@ describe("BaseUnitsStringSchema", () => {
     const result = BaseUnitsStringSchema.safeParse("nope");
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe('expected a plain decimal string like "1000000"');
+  });
+});
+
+describe("BaseUnitsRangeStringSchema", () => {
+  it("accepts a single plain decimal", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("1000000").success).toBe(true);
+  });
+
+  it("accepts a range", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("100-200").success).toBe(true);
+  });
+
+  it("accepts a decimal range", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("100.5-200.5").success).toBe(true);
+  });
+
+  it("rejects a string with a unit suffix", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("100-200 SOL").success).toBe(false);
+  });
+
+  it("rejects a malformed range", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("100-").success).toBe(false);
+  });
+
+  it("reports a helpful error message", () => {
+    const result = BaseUnitsRangeStringSchema.safeParse("nope");
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe(
+      'expected a plain decimal or range like "1000000" or "100-200"',
+    );
   });
 });
 

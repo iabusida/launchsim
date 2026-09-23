@@ -1,4 +1,5 @@
-export { formatLamports } from "./format/format-lamports.js";
+export { formatQuoteAmount } from "./format/format-quote-amount.js";
+export type { QuoteUnit } from "./format/format-quote-amount.js";
 export { formatBps } from "./format/format-bps.js";
 
 export { toCanonicalJson } from "./canonical-json.js";

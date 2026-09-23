@@ -43,7 +43,7 @@ function fixture(): RunResult {
         id: "quoteNeverBelowPctOfPeak",
         kind: "quoteNeverBelowPctOfPeak",
         passed: false,
-        summary: "pool SOL fell to 40% of peak at slot 300000",
+        summary: "pool quote fell to 40% of peak at slot 300000",
         observed: "4000",
         threshold: "5000",
         atSlot: 300_000,
@@ -57,7 +57,7 @@ function fixture(): RunResult {
 
 describe("renderHtmlReport (accessibility)", () => {
   it("has no axe-core violations", async () => {
-    const html = renderHtmlReport(fixture(), { command: "launchsim run scenarios/hourly-burn-lp.ts" });
+    const html = renderHtmlReport(fixture(), { command: "launchsim run scenarios/hourly-burn-lp.ts", quoteUnit: { symbol: "MON", decimals: 18 } });
     const dom = new JSDOM(html, { url: "http://localhost/" });
     // axe-core detects its DOM globals from `window`/`document`, which
     // aren't ambient in a plain Node test; jsdom provides them for the

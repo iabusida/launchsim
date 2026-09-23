@@ -63,12 +63,12 @@ describe("ActorConfigSchema", () => {
     const result = ActorConfigSchema.parse({
       group: "panicSeller",
       count: 40,
-      holdings: "0.1-1 SOL",
+      holdings: "100000-1000000",
     });
     expect(result).toEqual({
       group: "panicSeller",
       count: 40,
-      holdings: "0.1-1 SOL",
+      holdings: "100000-1000000",
       triggerDrawdown: "30%",
     });
   });

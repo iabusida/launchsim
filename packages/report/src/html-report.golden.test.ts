@@ -16,11 +16,11 @@ const FIXTURE: RunResult = {
   durationSlots: 300_000,
   timeline: {
     samples: [
-      { slot: 0, quoteReserve: 30_000_000_000n, baseReserve: 1_073_000_000_000_000n },
-      { slot: 150_000, quoteReserve: 18_000_000_000n, baseReserve: 1_000_000_000_000_000n },
-      { slot: 300_000, quoteReserve: 12_000_000_000n, baseReserve: 950_000_000_000_000n },
+      { slot: 0, quoteReserve: 30_000_000_000_000_000_000n, baseReserve: 1_073_000_000_000_000n },
+      { slot: 150_000, quoteReserve: 18_000_000_000_000_000_000n, baseReserve: 1_000_000_000_000_000n },
+      { slot: 300_000, quoteReserve: 12_000_000_000_000_000_000n, baseReserve: 950_000_000_000_000n },
     ],
-    peakQuoteReserve: 30_000_000_000n,
+    peakQuoteReserve: 30_000_000_000_000_000_000n,
   },
   mechanicEvents: [
     { slot: 9_000, mechanicId: "lpBurn", baseBurned: 53_650_000_000_000n, quoteSpent: 0n },
@@ -31,7 +31,7 @@ const FIXTURE: RunResult = {
       actorId: "sniper-0",
       group: "sniper",
       side: "buy",
-      quote: 2_000_000_000n,
+      quote: 2_000_000_000_000_000_000n,
       base: 71_000_000_000_000n,
       ok: true,
       reason: null,
@@ -41,7 +41,7 @@ const FIXTURE: RunResult = {
       actorId: "sniper-0",
       group: "sniper",
       side: "sell",
-      quote: 3_800_000_000n,
+      quote: 3_800_000_000_000_000_000n,
       base: 71_000_000_000_000n,
       ok: true,
       reason: null,
@@ -52,7 +52,7 @@ const FIXTURE: RunResult = {
       id: "quoteNeverBelowPctOfPeak",
       kind: "quoteNeverBelowPctOfPeak",
       passed: false,
-      summary: "pool SOL fell to 40% of peak at slot 300000",
+      summary: "pool quote fell to 40% of peak at slot 300000",
       observed: "4000",
       threshold: "5000",
       atSlot: 300_000,
@@ -65,7 +65,7 @@ const FIXTURE: RunResult = {
 
 describe("renderHtmlReport (golden)", () => {
   it("matches the committed golden HTML output", async () => {
-    const html = renderHtmlReport(FIXTURE, { command: "launchsim run scenarios/hourly-burn-lp.ts" });
+    const html = renderHtmlReport(FIXTURE, { command: "launchsim run scenarios/hourly-burn-lp.ts", quoteUnit: { symbol: "MON", decimals: 18 } });
     await expect(html).toMatchFileSnapshot("__golden__/hourly-burn-lp.html");
   });
 });

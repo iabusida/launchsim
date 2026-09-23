@@ -4,12 +4,17 @@ export { bpsOf } from "./math/bps-of.js";
 export { minBig, maxBig } from "./math/min-max-big.js";
 export { price, comparePrice } from "./math/price.js";
 export type { Price } from "./math/price.js";
+export { parseDecimalToBigInt } from "./math/parse-decimal.js";
 export { parseAmount } from "./math/parse-amount.js";
+export { parseAmountRange } from "./math/parse-amount-range.js";
+export type { AmountRange } from "./math/parse-amount-range.js";
+export { parseBaseUnitsRange } from "./math/parse-base-units-range.js";
 export { parsePercent } from "./math/parse-percent.js";
 export { parseDuration } from "./math/parse-duration.js";
+export { parseSlotOrDuration } from "./math/parse-slot-or-duration.js";
 
 export { ScenarioConfigSchema } from "./scenario/scenario-config.schema.js";
-export type { ScenarioConfig } from "./scenario/scenario-config.schema.js";
+export type { ScenarioConfig, ScenarioConfigInput } from "./scenario/scenario-config.schema.js";
 export { MarketConfigSchema } from "./scenario/market-config.schema.js";
 export { MechanicConfigSchema } from "./scenario/mechanic-config.schema.js";
 export { ActorConfigSchema } from "./scenario/actor-config.schema.js";
@@ -19,6 +24,7 @@ export {
   AmountStringSchema,
   AmountRangeStringSchema,
   BaseUnitsStringSchema,
+  BaseUnitsRangeStringSchema,
   PercentStringSchema,
   DurationStringSchema,
   SlotOrDurationStringSchema,

@@ -1,6 +1,6 @@
 import type { RunResult } from "./run-result.js";
 import { escapeHtml } from "./escape-html.js";
-import { formatLamports } from "./format/format-lamports.js";
+import { formatQuoteAmount, type QuoteUnit } from "./format/format-quote-amount.js";
 import { downsample } from "./chart/downsample.js";
 import { renderLineChart } from "./chart/render-line-chart.js";
 import { summarizeGroups } from "./group-summary.js";
@@ -13,6 +13,8 @@ const MAX_CHART_POINTS = 600;
 export interface HtmlReportOptions {
   /** The exact command that reproduces this run, shown in the "Reproduce" section. */
   readonly command: string;
+  /** The scenario's quote asset, e.g. `{ symbol: "MON", decimals: 18 }` (docs/06). */
+  readonly quoteUnit: QuoteUnit;
 }
 
 function renderChecksSection(result: RunResult): string {
@@ -38,13 +40,18 @@ function renderChartsSection(result: RunResult): string {
   return `<section><h2>Pool quote reserve over time</h2>${quoteSvg}</section>`;
 }
 
-function renderGroupsSection(result: RunResult): string {
+function renderGroupsSection(result: RunResult, quoteUnit: QuoteUnit): string {
   const groups = summarizeGroups(result.trades);
   const rows = groups
-    .map(
-      (group) =>
-        `<tr><td>${escapeHtml(group.group)}</td><td>${formatLamports(group.spent)}</td><td>${formatLamports(group.received)}</td><td>${group.pnl >= 0n ? formatLamports(group.pnl) : `-${formatLamports(-group.pnl)}`}</td></tr>`,
-    )
+    .map((group) => {
+      const spent = formatQuoteAmount(group.spent, quoteUnit);
+      const received = formatQuoteAmount(group.received, quoteUnit);
+      const pnl =
+        group.pnl >= 0n
+          ? formatQuoteAmount(group.pnl, quoteUnit)
+          : `-${formatQuoteAmount(-group.pnl, quoteUnit)}`;
+      return `<tr><td>${escapeHtml(group.group)}</td><td>${spent}</td><td>${received}</td><td>${pnl}</td></tr>`;
+    })
     .join("");
   return `<section><h2>Who profited</h2><table><thead><tr><th>Group</th><th>Spent</th><th>Received</th><th>PnL</th></tr></thead><tbody>${rows}</tbody></table></section>`;
 }
@@ -104,7 +111,7 @@ ${header}
 <main>
 ${renderChecksSection(result)}
 ${renderChartsSection(result)}
-${renderGroupsSection(result)}
+${renderGroupsSection(result, opts.quoteUnit)}
 ${renderListSection("What was simulated", result.simulated)}
 ${renderListSection("What was not simulated", result.notSimulated)}
 ${reproduce}
