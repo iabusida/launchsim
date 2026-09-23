@@ -88,7 +88,7 @@ launchsim/
 └── examples/                # runnable end-to-end examples used in the README and videos
 ```
 
-`registry/`, `share/`, and `contracts/` are target layout for M5-Monad and don't exist yet; `blink/` and `testkit/` (as `export {}` placeholders), and working `core`, `adapters`, `report`, `cli`, and now `mcp` packages, exist today. Dependency direction is one-way: `cli`/`mcp` → `report`/`adapters` → `core` (`mcp` also depends on `cli` directly, reusing its `runScenario`/`runCommand` rather than a second implementation). `contracts/` is independent; `registry` consumes its ABI from Foundry's build output. `core` depends on nothing internal. `testkit` is a devDependency only.
+`registry/` and `share/` are target layout for M5-Monad and don't exist yet; `blink/` and `testkit/` (as `export {}` placeholders), working `core`, `adapters`, `report`, `cli`, and `mcp` packages, and now `contracts/` (a Foundry project, `ReportRegistry.sol` built and tested, not yet deployed anywhere), exist today. Dependency direction is one-way: `cli`/`mcp` → `report`/`adapters` → `core` (`mcp` also depends on `cli` directly, reusing its `runScenario`/`runCommand` rather than a second implementation). `contracts/` is independent; `registry` consumes its ABI from Foundry's build output. `core` depends on nothing internal. `testkit` is a devDependency only.
 
 ## 6. Commands
 
@@ -103,7 +103,7 @@ pnpm build
 pnpm docs:api           # TypeDoc from TSDoc comments
 pnpm launchsim run scenarios/hourly-burn-lp.ts
 
-# contracts/ (not yet scaffolded; see docs/09 Phase B)
+# contracts/ (cd contracts first)
 forge test -vvv
 forge coverage --report summary --report lcov   # must be 100% lines + branches
 forge fmt --check
@@ -148,7 +148,7 @@ slither .
 
 ## 10. Current phase
 
-**Monad hackathon build** (`docs/09-roadmap-mvp.md`, `docs/13-hackathon-submission.md`), track Trust/Identity & AI Infrastructure. M0–M4 (engine, markets, actors, mechanics, checks, report) are built on the chain-agnostic plan: lint/typecheck clean, 100% coverage on `core`/`adapters`/`report`/`cli`/`mcp`, Stryker ≥90% on `core` (threshold 85%). SOL→quote rename, the scenario interpreter, `cli run`, `packages/mcp`, and the AI red-team are all done (`docs/09` Phase B items 1–4): `scenarios/hourly-burn-lp.ts` and `fee-buyback.ts` run end to end via `pnpm exec launchsim run <path>`, proving the thesis (burn fails `quoteNeverBelowPctOfPeak`, buyback passes it); the same simulation is reachable by any MCP client via `crash_test_scenario`; and `red_team_scenario` scales an actor group's count to find the smallest count that breaks a named check — the AI Infrastructure half of the track is covered, not just the Trust half. Remaining known gaps: `RunResult` has no `groups` field though `docs/04` specifies one; no Changesets tooling; the fluent `scenario()`/`actors.*()` DSL sugar is still deferred; Node 22.12–22.17 may need an explicit `--experimental-strip-types` flag to load `.ts` scenario files (only verified on Node 23 so far); the red-team tool isn't yet called out in the demo/README. Next, in order (`docs/09` Phase B): Nad.fun-style curve adapter → `ReportRegistry` contract → `registry` client → `share` page → `publish` command. Submission due **Oct 13, 2026**.
+**Monad hackathon build** (`docs/09-roadmap-mvp.md`, `docs/13-hackathon-submission.md`), track Trust/Identity & AI Infrastructure. M0–M4 (engine, markets, actors, mechanics, checks, report) are built on the chain-agnostic plan: lint/typecheck clean, 100% coverage on `core`/`adapters`/`report`/`cli`/`mcp`, Stryker ≥90% on `core` (threshold 85%). SOL→quote rename, the scenario interpreter, `cli run`, `packages/mcp`, and the AI red-team are all done (`docs/09` Phase B items 1–4): `scenarios/hourly-burn-lp.ts` and `fee-buyback.ts` run end to end via `pnpm exec launchsim run <path>`, proving the thesis (burn fails `quoteNeverBelowPctOfPeak`, buyback passes it); the same simulation is reachable by any MCP client via `crash_test_scenario`; and `red_team_scenario` scales an actor group's count to find the smallest count that breaks a named check — the AI Infrastructure half of the track is covered, not just the Trust half. `contracts/ReportRegistry.sol` (docs/09 Phase B item 6) is also done: write-once, 22 tests (unit, fuzz, a stateful invariant suite, a deploy-script test), 100% `forge coverage` on `src/`, `slither .` clean (no high/medium findings). Remaining known gaps: `RunResult` has no `groups` field though `docs/04` specifies one; no Changesets tooling; the fluent `scenario()`/`actors.*()` DSL sugar is still deferred; Node 22.12–22.17 may need an explicit `--experimental-strip-types` flag to load `.ts` scenario files (only verified on Node 23 so far); the red-team tool isn't yet called out in the demo/README; `ReportRegistry` isn't deployed anywhere yet (needs an RPC URL, chain ID, and a wallet from you). Next, in order (`docs/09` Phase B): `math/nadfun-curve` adapter (needs live Monad RPC for real parameters) → `registry` client → `share` page → `publish` command. Submission due **Oct 13, 2026**.
 
 ## 11. Git identity (project persona)
 

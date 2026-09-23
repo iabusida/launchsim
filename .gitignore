@@ -32,3 +32,11 @@ pnpm-debug.log*
 
 # pnpm
 .pnpm-store/
+
+# Foundry (contracts/)
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/31337/
+
+# Claude Code tool-internal state
+.claude/
