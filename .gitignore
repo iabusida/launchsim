@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+docs/api/
+
+# Test / coverage
+coverage/
+.stryker-tmp/
+reports/mutation/
+
+# launchsim run output
+launchsim-report/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+keys/
+*.keypair.json
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# pnpm
+.pnpm-store/

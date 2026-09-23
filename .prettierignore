@@ -1,0 +1,6 @@
+dist/
+coverage/
+.stryker-tmp/
+reports/
+pnpm-lock.yaml
+docs/api/

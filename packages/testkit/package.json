@@ -1,0 +1,18 @@
+{
+  "name": "@launchsim/testkit",
+  "version": "0.0.0",
+  "description": "Shared test builders, fixtures, and a fake clock. Dev-only, never published.",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.1.11",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

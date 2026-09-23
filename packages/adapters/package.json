@@ -1,0 +1,35 @@
+{
+  "name": "@launchsim/adapters",
+  "version": "0.0.0",
+  "description": "Market adapters: math models (pump-curve, CPMM) now, Surfpool chain mode later.",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@launchsim/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.1.11",
+    "fast-check": "4.10.2",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

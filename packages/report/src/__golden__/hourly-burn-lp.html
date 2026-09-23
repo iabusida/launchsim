@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>hourly burn from LP — launchsim report</title>
+<style>
+  :root { --chart-line: #2563eb; --bg: #ffffff; --fg: #111111; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --chart-line: #60a5fa; --bg: #0b0b0b; --fg: #eeeeee; } }
+  :root[data-theme="dark"] { --chart-line: #60a5fa; --bg: #0b0b0b; --fg: #eeeeee; }
+  body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; margin: 0 auto; max-width: 720px; padding: 16px; }
+  .badge.pass { color: green; } .badge.fail { color: crimson; }
+  .checks .pass { color: green; } .checks .fail { color: crimson; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1px solid currentColor; padding: 4px 8px; text-align: left; }
+</style>
+</head>
+<body>
+
+    <header>
+      <h1>hourly burn from LP</h1>
+      <p class="badge fail">FAIL</p>
+      <p>seed 42 &middot; math mode &middot; launchsim 0.1.0 &middot; a1b2c3d4e5f6</p>
+    </header>
+<main>
+<section><h2>Checks</h2><ul class="checks"><li class="fail">✗ pool SOL fell to 40% of peak at slot 300000</li></ul></section>
+<section><h2>Pool quote reserve over time</h2><svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg"><polyline points="8,8 300,130.67 592,192" fill="none" stroke="var(--chart-line)" stroke-width="2" /></svg></section>
+<section><h2>Who profited</h2><table><thead><tr><th>Group</th><th>Spent</th><th>Received</th><th>PnL</th></tr></thead><tbody><tr><td>sniper</td><td>2.00 SOL</td><td>3.80 SOL</td><td>1.80 SOL</td></tr></tbody></table></section>
+<section><h2>What was simulated</h2><ul><li>snipers</li><li>hourly LP burn</li></ul></section>
+<section><h2>What was not simulated</h2><ul><li>chain-level MEV</li><li>real wallet behavior</li></ul></section>
+
+    <section>
+      <h2>Reproduce</h2>
+      <pre>launchsim run scenarios/hourly-burn-lp.ts</pre>
+      <p>Scenario hash: a1b2c3d4e5f6</p>
+    </section>
+</main>
+
+    <footer>
+      <p>This report shows how one mechanism behaved against specific simulated behaviors. It is not an audit, not a guarantee, and not financial advice.</p>
+    </footer>
+</body>
+</html>

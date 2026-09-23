@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+
+allowBuilds:
+  # esbuild's install script only downloads its platform-specific binary
+  # (used by vite/tsup); no arbitrary code beyond that.
+  esbuild: true
+
+onlyBuiltDependencies:
+  - esbuild
