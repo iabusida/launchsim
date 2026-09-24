@@ -3,7 +3,7 @@
 [![CI](https://github.com/iabusida/launchsim/actions/workflows/ci.yml/badge.svg)](https://github.com/iabusida/launchsim/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
-**Crash-test a token launch against snipers, bundlers, and bad tokenomics before real money finds out — then record the result on-chain so nobody can fake it.**
+**Crash-test a token's market mechanics — at launch, or any time after — against snipers, bundlers, whales, and bad tokenomics, before real money finds out. Then record the result on-chain so nobody can fake it.**
 
 Built for the **Monad Metropolis hackathon** (track: Trust/Identity & AI Infrastructure), submission Oct 13, 2026.
 
@@ -21,10 +21,12 @@ None of that shows up in a unit test. It shows up after real money is lost, and 
 
 ## What launchsim does
 
-1. **Simulates** the launch inside a scripted adversarial market — retail buyers, snipers, bundlers, a whale, panic sellers — running the actual bonding-curve or AMM math, not a toy model.
-2. **Checks** rules that must hold (e.g. "pool liquidity never drops below 50% of its peak").
+1. **Simulates** the token's market inside a scripted adversarial environment — retail buyers, snipers, bundlers, a whale, panic sellers — running the actual bonding-curve or AMM math, not a toy model. The pool can start empty (a fresh launch) or with real existing reserves (a token that's been trading for months) — same engine either way.
+2. **Checks** rules that must hold (e.g. "pool liquidity never drops below 50% of its peak," "no single actor group holds more than 10% of supply").
 3. **Reports** the result: a terminal summary, a deterministic JSON `RunResult`, and a shareable HTML page with inline charts.
 4. **Records** the report's hash and verdict in an immutable on-chain `ReportRegistry` on Monad. A share page checks the live report against the chain, so a launchpad or token team can post one link and anyone can verify it hasn't been quietly edited after the fact.
+
+This isn't limited to launch day. `launchsim run` takes a `Market` config with starting reserves you supply — a brand-new pool at slot 0, or a snapshot of a pool that's already been live for a year — so the same engine answers "will this survive its first hour" and "will this survive a whale dumping into it six months from now, if we ship this fee change." See [below](#not-just-launch-day) for a worked example of the second kind.
 
 ## See it work
 
@@ -63,6 +65,26 @@ $ pnpm exec launchsim run scenarios/hourly-burn-lp.ts
 
 `scenarios/fee-buyback.ts` runs the **exact same 300 retail actors** against a fee-funded buyback-and-burn mechanic instead of the draining one — and passes the same check. Same actors, same seed, same duration; only the mechanic changes. That contrast is the whole thesis: the mechanic decides the outcome, not luck, and now there's a report proving it either way.
 
+## Not just launch day
+
+`scenarios/whale-exit-mature-pool.ts` starts from a `math/cpmm` pool with real, established reserves — not a fresh bonding curve — with 500 retail actors already trading and 280 existing holders, then has a whale dump a large position two hours in. No mechanic is protecting the pool:
+
+```
+$ pnpm exec launchsim run scenarios/whale-exit-mature-pool.ts
+✗ whale exit, mature pool, unprotected   (seed 1 · math mode · launchsim 0.1.0)
+  ✗ max 9000-slot drawdown reached 20% at slot 18750
+```
+
+`scenarios/whale-exit-with-buyback.ts` is the identical pool, identical 500 retail actors, identical 280 holders, identical whale, identical seed — the only difference is a fee-funded buyback mechanic is already running, spending trading fees to buy back into the dip as it happens:
+
+```
+$ pnpm exec launchsim run scenarios/whale-exit-with-buyback.ts
+✓ whale exit, mature pool, with buyback   (seed 1 · math mode · launchsim 0.1.0)
+  ✓ max 9000-slot drawdown was 19%, below the 20% limit
+```
+
+The exact measured drawdown is 20.70% unprotected vs 19.86% with the buyback running — a real, modest reduction, reported honestly rather than tuned to look dramatic. The point isn't the size of the effect; it's that this is the same "does this mechanic hold up" question you'd ask about a token on day one, asked instead about a token that's been trading for months, before shipping a tokenomics change to it. Nothing about the engine cares which.
+
 ## Quick start
 
 ```bash
@@ -97,9 +119,9 @@ block time ... · submitted by 0x... · 0/1 checks passed · hash matches
 
 `ReportRegistry` is a write-once contract: no admin, no upgradeability, no funds held, one function (`record`) that can never overwrite an existing entry. It's live on **Monad testnet** (chain 10143) at [`0x15234E82cD27D56613C3D34679D903eAe2C3CFd1`](https://testnet.monadscan.com/address/0x15234E82cD27D56613C3D34679D903eAe2C3CFd1), source-verified on Sourcify. The share page (`@launchsim/share`) reads the chain live and shows one of three states — **Recorded**, **Not recorded**, or **Mismatch** (if someone tampers with the stored report, it re-hashes to a *different*, unrecorded value, so tampering surfaces honestly as "not recorded," never a false "verified"). Mainnet deployment is pending — that step needs a funded wallet and a human signature, deliberately outside this tool's reach.
 
-## AI Infrastructure: crash-test a launch from an agent
+## AI Infrastructure: crash-test a scenario from an agent
 
-`@launchsim/mcp` exposes the same engine over the [Model Context Protocol](https://modelcontextprotocol.io), so any MCP client — Claude Code, Cursor, or your own agent — can crash-test a launch config directly, no CLI required:
+`@launchsim/mcp` exposes the same engine over the [Model Context Protocol](https://modelcontextprotocol.io), so any MCP client — Claude Code, Cursor, or your own agent — can crash-test a scenario config directly, no CLI required:
 
 - **`crash_test_scenario`** — runs a scenario, returns the report.
 - **`red_team_scenario`** — scales one actor group (snipers, retail, panic sellers) up or down and finds the *smallest* attack that breaks a named check, e.g. "the smallest sniper count that pushes supply concentration over 10% in the first minute." An agent can search for the breaking point instead of a human guessing at parameters.
