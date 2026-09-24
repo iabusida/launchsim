@@ -1,6 +1,13 @@
 packages:
   - packages/*
 
+overrides:
+  # express@5.2.1 (transitive, via @modelcontextprotocol/sdk) pins a
+  # vulnerable qs@6.15.1 while its own body-parser dep already resolves
+  # the patched qs@6.16.0 -- force the patched version everywhere
+  # (GHSA-q8mj-m7cp-5q26, GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g).
+  qs: '>=6.16.0'
+
 allowBuilds:
   # esbuild's install script only downloads its platform-specific binary
   # (used by vite/tsup); no arbitrary code beyond that.

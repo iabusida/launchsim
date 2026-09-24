@@ -40,6 +40,12 @@ jobs:
       # Same reason as verify: cross-package imports resolve through
       # dist/*.js at runtime, which doesn't exist on a fresh checkout.
       - run: pnpm build
+      # packages/registry's abi.drift.test.ts reads contracts/out/ (docs/12:
+      # "a test fails if the TS ABI and the compiled ABI drift") -- nothing
+      # else in this job builds Solidity, so do it explicitly.
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: forge build
+        working-directory: contracts
       - run: pnpm test
       - uses: actions/upload-artifact@v7
         if: always()

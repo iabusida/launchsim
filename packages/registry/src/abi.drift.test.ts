@@ -9,9 +9,9 @@ const COMPILED_ARTIFACT = fileURLToPath(
 
 /**
  * docs/12: "a test fails if the TS ABI and the compiled ABI drift."
- * Requires `forge build` to have run in `contracts/` first (it always has
- * by the time this package's tests run in CI, since contracts build
- * before registry per docs/01's dependency order).
+ * Requires `forge build` to have run in `contracts/` first -- CI's `test`
+ * job does this (via `foundry-rs/foundry-toolchain`) before `pnpm test`;
+ * locally, run `(cd contracts && forge build)` first.
  */
 describe("reportRegistryAbi", () => {
   it("matches the ABI Foundry compiled from ReportRegistry.sol", () => {
