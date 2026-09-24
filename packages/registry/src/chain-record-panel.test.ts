@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createPublicClient, custom, encodeFunctionResult, type Address, type Hex } from "viem";
-import { reportRegistryAbi } from "@launchsim/registry";
+import { reportRegistryAbi } from "./abi.js";
 import type { RunResult } from "@launchsim/report";
 import { getChainRecordPanel } from "./chain-record-panel.js";
 

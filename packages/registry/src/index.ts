@@ -10,3 +10,5 @@ export { buildRecordCall } from "./build-record-call.js";
 export type { RecordCall } from "./build-record-call.js";
 export { readRecord } from "./read-record.js";
 export type { ReportRecord } from "./read-record.js";
+export { getChainRecordPanel } from "./chain-record-panel.js";
+export type { ChainRecordPanel, ChainRecordStatus } from "./chain-record-panel.js";

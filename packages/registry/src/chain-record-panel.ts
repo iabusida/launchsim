@@ -1,11 +1,13 @@
 import type { Address, PublicClient } from "viem";
 import type { RunResult } from "@launchsim/report";
-import { readRecord, toReportHash, type ReportRecord } from "@launchsim/registry";
+import { readRecord, type ReportRecord } from "./read-record.js";
+import { toReportHash } from "./report-hash.js";
 
 /**
- * The share page's chain record panel (docs/12): three states, never
- * "verified safe" -- recording proves integrity and authorship, nothing
- * about whether the token is safe (ADR 0007).
+ * The chain record panel (docs/12), shared by `cli verify` and `share`'s
+ * `/r/:id` page -- both need the exact same three-state classification,
+ * and never "verified safe": recording proves integrity and authorship,
+ * nothing about whether the token is safe (ADR 0007).
  */
 export type ChainRecordStatus = "recorded" | "not-recorded" | "mismatch";
 

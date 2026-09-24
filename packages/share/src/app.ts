@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import type { Address, PublicClient } from "viem";
 import { escapeHtml, renderHtmlReport, toCanonicalJson, type RunResult } from "@launchsim/report";
+import { getChainRecordPanel, type ChainRecordPanel } from "@launchsim/registry";
 import type { ReportStore } from "./report-store.js";
-import { getChainRecordPanel, type ChainRecordPanel } from "./chain-record-panel.js";
 import { renderBadgePng } from "./badge.js";
 
 /** {@link createApp}'s options. */
