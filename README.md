@@ -126,6 +126,27 @@ block time ... · submitted by 0x... · 0/1 checks passed · hash matches
 - **`crash_test_scenario`** — runs a scenario, returns the report.
 - **`red_team_scenario`** — scales one actor group (snipers, retail, panic sellers) up or down and finds the *smallest* attack that breaks a named check, e.g. "the smallest sniper count that pushes supply concentration over 10% in the first minute." An agent can search for the breaking point instead of a human guessing at parameters.
 
+`@launchsim/mcp` isn't published yet, so point your MCP client at the built local binary after cloning and building this repo:
+
+```bash
+git clone https://github.com/iabusida/launchsim.git && cd launchsim && pnpm install && pnpm build
+```
+
+Add to `claude_desktop_config.json` (or Cursor's MCP settings, same shape):
+
+```json
+{
+  "mcpServers": {
+    "launchsim": {
+      "command": "node",
+      "args": ["/absolute/path/to/launchsim/packages/mcp/dist/bin.js"]
+    }
+  }
+}
+```
+
+Restart the client, then ask it to crash-test a scenario — it calls `crash_test_scenario` with a `ScenarioConfig` and gets the same report `launchsim run` would produce.
+
 ## Architecture
 
 ```
