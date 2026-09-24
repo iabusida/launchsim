@@ -254,9 +254,15 @@ importers:
       '@launchsim/core':
         specifier: workspace:*
         version: link:../core
+      '@launchsim/registry':
+        specifier: workspace:*
+        version: link:../registry
       '@launchsim/report':
         specifier: workspace:*
         version: link:../report
+      viem:
+        specifier: 2.56.8
+        version: 2.56.8(typescript@5.9.3)(zod@4.6.5)
     devDependencies:
       '@vitest/coverage-v8':
         specifier: 4.1.11

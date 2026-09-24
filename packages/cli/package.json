@@ -28,7 +28,9 @@
   "dependencies": {
     "@launchsim/adapters": "workspace:*",
     "@launchsim/core": "workspace:*",
-    "@launchsim/report": "workspace:*"
+    "@launchsim/registry": "workspace:*",
+    "@launchsim/report": "workspace:*",
+    "viem": "2.56.8"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.11",

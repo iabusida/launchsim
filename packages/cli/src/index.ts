@@ -10,3 +10,7 @@ export { findSmallestBreak } from "./interpreter/red-team.js";
 export type { RedTeamBounds, RedTeamResult } from "./interpreter/red-team.js";
 export { runCommand } from "./commands/run.js";
 export type { RunCommandIo } from "./commands/run.js";
+export { publishCommand } from "./commands/publish.js";
+export type { PublishCommandIo } from "./commands/publish.js";
+export { verifyCommand } from "./commands/verify.js";
+export type { VerifyCommandIo } from "./commands/verify.js";
