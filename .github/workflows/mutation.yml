@@ -1,0 +1,30 @@
+name: Mutation
+
+# docs/11-ci-release.md: "mutation | nightly, pre-release | Stryker on core;
+# fail below 85% | pre-release only" -- deliberately not on every push/PR,
+# since a full run takes noticeably longer than the other checks.
+
+on:
+  schedule:
+    - cron: "17 7 * * *" # nightly, off the hour to avoid GitHub's peak-load minute
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  mutation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # packages/core has no internal workspace dependencies (docs/01: "core
+      # depends on nothing internal"), so no pnpm build step is needed
+      # before mutating it.
+      - run: pnpm test:mutation
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with: { name: mutation-report, path: packages/core/reports/mutation }
