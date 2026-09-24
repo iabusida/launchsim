@@ -19,6 +19,8 @@ launchsim-report/
 !.env.example
 keys/
 *.keypair.json
+privatekey*
+*.key
 
 # Editor / OS
 .DS_Store
@@ -37,6 +39,7 @@ pnpm-debug.log*
 contracts/out/
 contracts/cache/
 contracts/broadcast/*/31337/
+contracts/broadcast/*/*/run-[0-9]*.json
 
 # Claude Code tool-internal state
 .claude/
