@@ -12,6 +12,7 @@
     "test": "pnpm -r run test",
     "test:watch": "pnpm -r --parallel run test:watch",
     "test:mutation": "pnpm --filter @launchsim/core run test:mutation",
+    "test:integration": "pnpm --filter @launchsim/registry run test:integration",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "pnpm -r run typecheck",
     "build": "pnpm -r --if-present run build"

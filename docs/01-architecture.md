@@ -42,7 +42,7 @@
 | `testkit` | Builders (`aScenario()`, `aPool()`), fixtures, fake market | None | n/a (dev-only) | placeholder |
 | `adapters` | `MarketAdapter` implementations: `math/pump-curve`, `math/cpmm` now, `math/nadfun-curve` next; `anvil/*` later | Chain RPC (anvil only) | 100% for math; integration for chain adapters | pump-curve + cpmm built |
 | `report` | `RunResult` → terminal text, JSON file, HTML with inline SVG | Filesystem via injected writer | 100% | built (M0–M4) |
-| `registry` | viem client: report hash, build `record` call, read records | Chain RPC (reads only) | 100% (fake transport) + Anvil integration | not started (M5-Monad) |
+| `registry` | viem client: report hash, build `record` call, read records | Chain RPC (reads only) | 100% (fake transport) + Anvil integration | built (2026-09-23) |
 | `share` | Hono app: `/r/:id` share page with chain record panel, badge image, OG tags | HTTP, chain reads | 100% | not started (M5-Monad) |
 | `contracts/` (Foundry) | `ReportRegistry.sol`, deploy script | on-chain | 100% lines + branches (`forge coverage`) | not started (M5-Monad) |
 | `blink` *(deferred)* | Solana Actions endpoint — Solana path only | HTTP | 100% when built | placeholder |

@@ -39,6 +39,10 @@ contract ReportRegistry is IReportRegistry {
 
         _records[reportHash] = Record({
             submitter: msg.sender,
+            // casting to 'uint64' is safe because block.timestamp won't
+            // exceed type(uint64).max (year ~584,942,417,355) for the
+            // lifetime of this contract or of Ethereum/Monad.
+            // forge-lint: disable-next-line(unsafe-typecast)
             recordedAt: uint64(block.timestamp),
             scenarioHash: scenarioHash,
             checksPassed: checksPassed,

@@ -1,0 +1,36 @@
+{
+  "name": "@launchsim/registry",
+  "version": "0.0.0",
+  "description": "viem client for ReportRegistry: report hash, build the record call, read records. Never holds a key.",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@launchsim/report": "workspace:*",
+    "viem": "2.56.8"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.1.11",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

@@ -88,7 +88,7 @@ launchsim/
 └── examples/                # runnable end-to-end examples used in the README and videos
 ```
 
-`registry/` and `share/` are target layout for M5-Monad and don't exist yet; `blink/` and `testkit/` (as `export {}` placeholders), working `core`, `adapters`, `report`, `cli`, and `mcp` packages, and now `contracts/` (a Foundry project, `ReportRegistry.sol` built and tested, not yet deployed anywhere), exist today. Dependency direction is one-way: `cli`/`mcp` → `report`/`adapters` → `core` (`mcp` also depends on `cli` directly, reusing its `runScenario`/`runCommand` rather than a second implementation). `contracts/` is independent; `registry` consumes its ABI from Foundry's build output. `core` depends on nothing internal. `testkit` is a devDependency only.
+`share/` is the last piece of target layout that doesn't exist yet; `blink/` and `testkit/` (as `export {}` placeholders), working `core`, `adapters`, `report`, `cli`, `mcp`, and now `registry` packages, and `contracts/` (a Foundry project, `ReportRegistry.sol` built and tested, not yet deployed anywhere), exist today. Dependency direction is one-way: `cli`/`mcp` → `report`/`adapters`/`registry` → `core` (`mcp` also depends on `cli` directly, reusing its `runScenario`/`runCommand` rather than a second implementation). `contracts/` is independent; `registry` consumes its ABI from Foundry's build output (a copy in `src/abi.ts`, drift-tested against `contracts/out/`). `core` depends on nothing internal. `testkit` is a devDependency only.
 
 ## 6. Commands
 
