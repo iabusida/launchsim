@@ -32,6 +32,21 @@ describe("parseAmountRange", () => {
     expect(() => parseAmountRange("0.1-1")).toThrow(/invalid amount range/);
   });
 
+  it("throws on leading content before the value", () => {
+    expect(() => parseAmountRange("x2 MON")).toThrow(/invalid amount range/);
+  });
+
+  it("throws on trailing content after the unit", () => {
+    expect(() => parseAmountRange("2 MON extra")).toThrow(/invalid amount range/);
+  });
+
+  it("trims leading and trailing whitespace", () => {
+    expect(parseAmountRange("  2 MON  ")).toEqual({
+      min: 2_000_000_000_000_000_000n,
+      max: 2_000_000_000_000_000_000n,
+    });
+  });
+
   it("throws on an unsupported unit", () => {
     expect(() => parseAmountRange("0.1-1 USDC")).toThrow(/unsupported unit/);
   });

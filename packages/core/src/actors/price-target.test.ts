@@ -31,6 +31,12 @@ describe("hasReachedMultiple", () => {
   it("throws when multiplier is not positive", () => {
     expect(() => hasReachedMultiple(price(1n, 1n), price(1n, 1n), 0)).toThrow(/positive/);
   });
+
+  it("cross-multiplies exactly when entry's denominator is not 1 (no integer-division truncation)", () => {
+    const entry = price(1n, 3n); // 1/3
+    const current = price(1n, 1n); // 1, which is >= 2 * 1/3 (=2/3)
+    expect(hasReachedMultiple(current, entry, 2)).toBe(true);
+  });
 });
 
 describe("hasDroppedToMultiple", () => {
@@ -54,5 +60,11 @@ describe("hasDroppedToMultiple", () => {
 
   it("throws when multiplier is not positive", () => {
     expect(() => hasDroppedToMultiple(price(1n, 1n), price(1n, 1n), 0)).toThrow(/positive/);
+  });
+
+  it("cross-multiplies exactly when entry's denominator is not 1 (no integer-division truncation)", () => {
+    const entry = price(1n, 3n); // 1/3
+    const current = price(1n, 1n); // 1, well above 0.5 * 1/3 (~0.167) -- has not dropped
+    expect(hasDroppedToMultiple(current, entry, 0.5)).toBe(false);
   });
 });

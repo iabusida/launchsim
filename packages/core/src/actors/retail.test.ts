@@ -47,9 +47,28 @@ describe("createRetailActors", () => {
 
   it("buys once at the arrival slot", () => {
     const [retail] = createRetailActors({ ...config, overSlots: 0 }, 1, 0, 1_000, createRng(42)); // overSlots 0 -> arrival always 0
+    expect(retail?.actor.group).toBe("retail");
     const orders = retail?.actor.decide(ctxAt(0, createRng(1)));
     expect(orders).toHaveLength(1);
-    expect(orders?.[0]).toMatchObject({ actorId: "retail-0", group: "retail", side: "buy" });
+    expect(orders?.[0]).toMatchObject({
+      actorId: "retail-0",
+      group: "retail",
+      side: "buy",
+      reason: "retail entry",
+    });
+  });
+
+  it("does nothing when not holding base, even with a stale entry price and a reached profit target", () => {
+    const [retail] = createRetailActors({ ...config, overSlots: 0 }, 1, 0, 1_000, createRng(42));
+    const notHolding = ctxAt(1_000, createRng(1), {
+      market: {
+        state: { quoteReserve: 2_000_000n, baseReserve: 1_000_000n, quoteFeesCollected: 0n },
+        price: price(2n, 1n),
+        peakQuoteReserve: 2_000_000n,
+      },
+      wallet: { quoteBalance: 1_000_000_000n, baseBalance: 0n, entryPrice: price(1n, 1n) },
+    });
+    expect(retail?.actor.decide(notHolding)).toEqual([]);
   });
 
   it("does not buy again at the arrival slot if somehow already holding", () => {

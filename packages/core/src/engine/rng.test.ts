@@ -34,6 +34,10 @@ describe("createRng", () => {
     }
   });
 
+  it("accepts a seed of exactly 0", () => {
+    expect(() => createRng(0)).not.toThrow();
+  });
+
   it("throws when the seed is negative", () => {
     expect(() => createRng(-1)).toThrow(/uint32/);
   });

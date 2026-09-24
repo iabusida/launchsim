@@ -37,4 +37,12 @@ describe("parsePercent", () => {
   it("throws on trailing content after the %", () => {
     expect(() => parsePercent("5% extra")).toThrow(/invalid percent/);
   });
+
+  it("throws on content before the value that isn't part of it (an internal space `.trim()` won't remove)", () => {
+    // `\S+` would otherwise absorb any non-whitespace prefix as part of
+    // its own match regardless of the `^` anchor, so only a genuinely
+    // unmatched internal separator can distinguish an anchored regex from
+    // an unanchored one here.
+    expect(() => parsePercent("a 5%")).toThrow(/invalid percent/);
+  });
 });

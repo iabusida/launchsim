@@ -42,6 +42,7 @@ describe("applyFill", () => {
     const next = applyFill(holding, { side: "sell", quoteAmount: 5_024n, baseAmount: 5_000n });
     expect(next.quoteBalance).toBe(5_024n);
     expect(next.baseBalance).toBe(4_802n);
+    expect(next.entryPrice).toEqual({ num: 10_000n, den: 9_802n });
   });
 
   it("clears entryPrice once the full base balance is sold", () => {

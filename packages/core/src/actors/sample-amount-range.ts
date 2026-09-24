@@ -50,6 +50,11 @@ export function sampleAmountRange(rng: Rng, min: bigint, max: bigint): bigint {
     throw new RangeError("sampleAmountRange: max must be at or above min");
   }
   const width = max - min;
+  // Stryker disable next-line ConditionalExpression,BlockStatement: this
+  // early return is a fast path, not load-bearing -- `nextBigIntBelow(rng,
+  // 1n)` always returns 0n without drawing any entropy (0 bits needed for
+  // maxExclusive=1), so falling through here still returns exactly `min`.
+  // Verified manually 2026-09-24: an equivalent mutant, not a test gap.
   if (width === 0n) {
     return min;
   }

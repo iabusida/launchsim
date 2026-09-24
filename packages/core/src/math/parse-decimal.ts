@@ -28,5 +28,9 @@ export function parseDecimalToBigInt(input: string, decimals: number): bigint {
     );
   }
   const paddedFraction = fraction.padEnd(decimals, "0");
+  // Stryker disable next-line StringLiteral: `BigInt("")` is 0n, identical
+  // to `BigInt("0")` -- the "0" fallback is equivalent to any other
+  // falsy-string fallback here (verified: BigInt("") === 0n), so this
+  // literal is unkillable, not a test gap (verified 2026-09-24).
   return BigInt(whole) * 10n ** BigInt(decimals) + BigInt(paddedFraction || "0");
 }

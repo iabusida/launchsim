@@ -67,4 +67,8 @@ describe("parseDuration", () => {
       /exceeds Number.MAX_SAFE_INTEGER/,
     );
   });
+
+  it("allows a slot count of exactly Number.MAX_SAFE_INTEGER (the bound is inclusive)", () => {
+    expect(parseDuration("9007199254740991s", 1000)).toBe(Number.MAX_SAFE_INTEGER);
+  });
 });

@@ -5,6 +5,12 @@ import { parseDecimalToBigInt } from "./parse-decimal.js";
 const DURATION_VALUE_DECIMALS = 6;
 const DURATION_VALUE_SCALE = 10n ** BigInt(DURATION_VALUE_DECIMALS);
 
+// Stryker disable next-line Regex: `[a-zA-Z]+` vs `[a-zA-Z]` (one-or-more vs
+// exactly-one letter) are behaviorally equivalent for every real input --
+// MS_PER_UNIT below only has single-character keys, so a genuinely
+// multi-letter "unit" fails that lookup and throws the same error under
+// either regex (verified manually, 2026-09-24: an equivalent mutant, not a
+// test gap).
 const DURATION_STRING = /^([\d.]+)([a-zA-Z]+)$/;
 
 /** Milliseconds per duration unit. */

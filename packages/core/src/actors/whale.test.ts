@@ -29,6 +29,7 @@ describe("createWhaleActor", () => {
 
   it("buys the full spend at the entry slot", () => {
     const scheduled = createWhaleActor("whale-0", config, 200_000, 1_000);
+    expect(scheduled.actor.group).toBe("whale");
     const orders = scheduled.actor.decide(ctxAt(75_000));
     expect(orders).toEqual([
       {
@@ -53,6 +54,27 @@ describe("createWhaleActor", () => {
       wallet: { quoteBalance: 0n, baseBalance: 50_000n, entryPrice: price(1n, 1n) },
     });
     expect(scheduled.actor.decide(holding)).toEqual([]);
+  });
+
+  it("does not buy again at the entry slot if already holding", () => {
+    const scheduled = createWhaleActor("whale-0", config, 200_000, 1_000);
+    const alreadyHolding = ctxAt(75_000, {
+      wallet: { quoteBalance: 0n, baseBalance: 50_000n, entryPrice: price(1n, 1n) },
+    });
+    expect(scheduled.actor.decide(alreadyHolding)).toEqual([]);
+  });
+
+  it("does nothing when not holding base, even with a stale entry price and a reached sell target", () => {
+    const scheduled = createWhaleActor("whale-0", config, 200_000, 1_000);
+    const notHolding = ctxAt(77_000, {
+      market: {
+        state: { quoteReserve: 3_000_000n, baseReserve: 1_000_000n, quoteFeesCollected: 0n },
+        price: price(3n, 1n),
+        peakQuoteReserve: 3_000_000n,
+      },
+      wallet: { quoteBalance: 50_000_000_000n, baseBalance: 0n, entryPrice: price(1n, 1n) },
+    });
+    expect(scheduled.actor.decide(notHolding)).toEqual([]);
   });
 
   it("sells everything once the price reaches sellAtX times the entry price", () => {

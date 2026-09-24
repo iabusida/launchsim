@@ -16,6 +16,20 @@ export default {
   // always runs the full suite, which is correct for that code; the
   // vitest.stryker.config.ts variant below keeps it fast by excluding the
   // two expensive end-to-end-style tests from the per-mutant sweep.
+  //
+  // A second, narrower static-mutant issue remains even with "off": mutating
+  // a whole `z.strictObject({...})` to `{}`, or a discriminatedUnion's
+  // discriminant key string to `""`, throws synchronously at module load
+  // (reproduced manually, 2026-09-24 -- `z.discriminatedUnion` reads
+  // `.shape`/the named key off each option at construction time). Every test
+  // that imports the module should therefore fail, but this vitest-runner +
+  // coverageAnalysis:"off" combination doesn't classify a module-load-time
+  // throw as a kill for *static* mutants specifically (testsCompleted: 0,
+  // coveredBy: [] in the JSON report) -- it reports "Survived" instead.
+  // Each site is individually annotated with a `// Stryker disable
+  // next-line` comment (not a blanket ignore) so field-level mutations
+  // inside the same object -- which this tool *does* classify correctly and
+  // which real tests do cover per-variant -- stay scored.
   coverageAnalysis: "off",
   vitest: {
     configFile: "vitest.stryker.config.ts",

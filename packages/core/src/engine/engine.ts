@@ -50,6 +50,10 @@ export interface EngineConfig {
  * including ones with no actor activity -- so mechanics and periodic
  * sampling never silently skip a quiet slot (docs/01: "per slot").
  */
+// Stryker disable next-line StringLiteral: the literal text is arbitrary --
+// TICK's only requirement is being a string no real actor id equals, so
+// `actorEntries.get(TICK)` misses and the event is skipped either way.
+// Verified 2026-09-24: an equivalent mutant, not a test gap.
 const TICK = "__tick__";
 
 /**
@@ -91,6 +95,8 @@ export function runEngine(config: EngineConfig): EngineResult {
 
   while (!queue.isEmpty()) {
     const nextSlot = queue.peekSlot();
+    // Stryker disable next-line ConditionalExpression,BlockStatement: same
+    // unreachability as the v8-ignore note below.
     /* v8 ignore next 3 -- coverage-ignore: unreachable, the while-guard already proved !queue.isEmpty(); TS narrowing only */
     if (nextSlot === null) {
       break;
@@ -100,6 +106,11 @@ export function runEngine(config: EngineConfig): EngineResult {
     }
     config.clock.advanceTo(nextSlot);
     const due = queue.popAllAtNextSlot();
+    // Stryker disable next-line ConditionalExpression,EqualityOperator: an
+    // extra tick queued at exactly `duration + 1` (from `<` becoming `<=`,
+    // or the guard becoming unconditional) is never observable -- the loop
+    // breaks as soon as it sees any slot > duration, before that tick is
+    // ever popped. Verified 2026-09-24: an equivalent mutant.
     if (nextSlot < config.duration) {
       // Schedule the next tick lazily (one at a time), not the whole
       // duration upfront -- keeps the queue small across a long run.
@@ -165,6 +176,12 @@ export function runEngine(config: EngineConfig): EngineResult {
         reason = "malformed order";
       }
 
+      // Stryker disable next-line ConditionalExpression: `quoteAmount`/
+      // `baseAmount` are only ever assigned inside an `outcome.ok` branch
+      // above, so whenever `ok` is false they're still their initial 0n --
+      // applying a (0n, 0n) fill unconditionally is a no-op on the wallet
+      // (verified: applyFill leaves balances and entryPrice unchanged for
+      // a zero-amount fill either side). Equivalent mutant, 2026-09-24.
       if (ok) {
         wallets.set(
           order.actorId,

@@ -234,6 +234,36 @@ describe("runEngine", () => {
     ).toThrow(/non-negative/);
   });
 
+  it("accepts a duration of exactly 0", () => {
+    expect(() =>
+      runEngine({
+        market: createFakeMarket(1_000n, 1_000n),
+        mechanics: [],
+        scheduledActors: [],
+        initialWallets: new Map(),
+        duration: 0,
+        sampleEvery: 5,
+        clock: createClock(400),
+        rng: createRng(42),
+      }),
+    ).not.toThrow();
+  });
+
+  it("advances the clock to each processed slot", () => {
+    const clock = createClock(400);
+    runEngine({
+      market: createFakeMarket(1_000n, 1_000n),
+      mechanics: [],
+      scheduledActors: [],
+      initialWallets: new Map(),
+      duration: 10,
+      sampleEvery: 5,
+      clock,
+      rng: createRng(42),
+    });
+    expect(clock.now()).toBe(10);
+  });
+
   it("orders three actors by priority fee even when scheduled out of order", () => {
     const market = createFakeMarket(10_000_000n, 10_000_000n);
     const low = createOneShotBuyer("low", 1n);

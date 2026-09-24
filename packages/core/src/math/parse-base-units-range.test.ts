@@ -17,4 +17,16 @@ describe("parseBaseUnitsRange", () => {
   it("throws when min is greater than max", () => {
     expect(() => parseBaseUnitsRange("200-100")).toThrow(/min must not exceed max/);
   });
+
+  it("throws on leading content before the value", () => {
+    expect(() => parseBaseUnitsRange("x100-200")).toThrow(/invalid base units range/);
+  });
+
+  it("trims leading and trailing whitespace", () => {
+    expect(parseBaseUnitsRange("  100-200  ")).toEqual({ min: 100n, max: 200n });
+  });
+
+  it("matches more than one fractional digit through the regex layer on either side of a range (rejected downstream: base units allow 0 decimals)", () => {
+    expect(() => parseBaseUnitsRange("100.55-200.55")).toThrow(/more precision than 0 decimal places/);
+  });
 });

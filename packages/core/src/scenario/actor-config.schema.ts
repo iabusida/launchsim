@@ -15,6 +15,7 @@ const BpsSchema = z.number().int().min(0).max(10_000);
  * `retail`: arrive spread over a window, buy once, hold; some sell on
  * profit or loss. Defaults: 30% sell at 2x, 20% sell at -50% (docs/03).
  */
+// Stryker disable next-line ObjectLiteral: see stryker.config.mjs's note on static mutants -- replacing this with {} crashes discriminatedUnion construction at module load (reproduced manually).
 const RetailActorConfigSchema = z.strictObject({
   group: z.literal("retail"),
   count: PositiveIntSchema,
@@ -30,6 +31,7 @@ const RetailActorConfigSchema = z.strictObject({
  * after a short hold or at a multiple. Defaults: slot 0, sell at 2x or
  * after 150 slots (~1 min) (docs/03).
  */
+// Stryker disable next-line ObjectLiteral: see stryker.config.mjs's note on static mutants -- replacing this with {} crashes discriminatedUnion construction at module load (reproduced manually).
 const SniperActorConfigSchema = z.strictObject({
   group: z.literal("sniper"),
   count: PositiveIntSchema,
@@ -45,6 +47,7 @@ const SniperActorConfigSchema = z.strictObject({
  * from one source; sells in tranches. Defaults: 10 wallets, 20% tranches
  * every 10 min (docs/03).
  */
+// Stryker disable next-line ObjectLiteral: see stryker.config.mjs's note on static mutants -- replacing this with {} crashes discriminatedUnion construction at module load (reproduced manually).
 const BundlerActorConfigSchema = z.strictObject({
   group: z.literal("bundler"),
   wallets: PositiveIntSchema.default(10),
@@ -57,6 +60,7 @@ const BundlerActorConfigSchema = z.strictObject({
  * `whale`: one large buy at a set time; sells all at a multiple or on a
  * trigger. Defaults: at 30 min, sell at 3x (docs/03).
  */
+// Stryker disable next-line ObjectLiteral: see stryker.config.mjs's note on static mutants -- replacing this with {} crashes discriminatedUnion construction at module load (reproduced manually).
 const WhaleActorConfigSchema = z.strictObject({
   group: z.literal("whale"),
   spend: AmountStringSchema,
@@ -70,6 +74,7 @@ const WhaleActorConfigSchema = z.strictObject({
  * base-unit (token) range, not a quote amount -- these actors start
  * already holding the launched token, they never buy it.
  */
+// Stryker disable next-line ObjectLiteral: see stryker.config.mjs's note on static mutants -- replacing this with {} crashes discriminatedUnion construction at module load (reproduced manually).
 const PanicSellerActorConfigSchema = z.strictObject({
   group: z.literal("panicSeller"),
   count: PositiveIntSchema,
@@ -81,6 +86,7 @@ const PanicSellerActorConfigSchema = z.strictObject({
  * `flipper`: repeated small buy/sell cycles chasing short momentum.
  * Defaults: every 5 min, 3-sample momentum (docs/03).
  */
+// Stryker disable next-line ObjectLiteral: see stryker.config.mjs's note on static mutants -- replacing this with {} crashes discriminatedUnion construction at module load (reproduced manually).
 const FlipperActorConfigSchema = z.strictObject({
   group: z.literal("flipper"),
   count: PositiveIntSchema,
@@ -90,6 +96,7 @@ const FlipperActorConfigSchema = z.strictObject({
 });
 
 /** The v1 actor catalog (docs/03). */
+// Stryker disable next-line StringLiteral: see stryker.config.mjs's note on static mutants -- an empty discriminant key crashes discriminatedUnion construction at module load (reproduced manually).
 export const ActorConfigSchema = z.discriminatedUnion("group", [
   RetailActorConfigSchema,
   SniperActorConfigSchema,

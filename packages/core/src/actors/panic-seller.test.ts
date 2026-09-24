@@ -28,6 +28,7 @@ describe("createPanicSellerActors", () => {
     const { scheduled, initialWallets } = createPanicSellerActors(config, 3, 200_000, 1_000, createRng(42));
     expect(scheduled.map((s) => s.actor.id)).toEqual(["panicSeller-0", "panicSeller-1", "panicSeller-2"]);
     for (const { actor } of scheduled) {
+      expect(actor.group).toBe("panicSeller");
       const wallet = initialWallets.get(actor.id);
       expect(wallet?.baseBalance).toBeGreaterThanOrEqual(config.holdingsMin);
       expect(wallet?.baseBalance).toBeLessThanOrEqual(config.holdingsMax);

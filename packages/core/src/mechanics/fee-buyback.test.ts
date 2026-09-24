@@ -74,6 +74,22 @@ describe("createFeeBuybackMechanic", () => {
     expect(event).toEqual({ slot: 100, mechanicId: "feeBuyback", baseBurned: 0n, quoteSpent: 0n });
   });
 
+  it("does not skip when the share exactly equals minBuy (the boundary still buys)", () => {
+    const mechanic = createFeeBuybackMechanic("feeBuyback", {
+      intervalSlots: 100,
+      feeShareBps: 10_000n, // 100%
+      minBuy: 1_000n,
+    });
+    const { market, burns, buyCalls } = fakeMarket({
+      feesToWithdraw: 1_000n,
+      buyOutcome: { ok: true, amountOut: 900n, feeAmount: 0n },
+    });
+    const event = mechanic.apply(ctx(100, market));
+    expect(buyCalls).toEqual([1_000n]);
+    expect(burns).toEqual([900n]);
+    expect(event).toEqual({ slot: 100, mechanicId: "feeBuyback", baseBurned: 900n, quoteSpent: 1_000n });
+  });
+
   it("skips the burn when the buy itself fails (e.g. slippage)", () => {
     const mechanic = createFeeBuybackMechanic("feeBuyback", {
       intervalSlots: 100,

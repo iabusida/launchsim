@@ -152,6 +152,14 @@ describe("BaseUnitsRangeStringSchema", () => {
     expect(BaseUnitsRangeStringSchema.safeParse("100-").success).toBe(false);
   });
 
+  it("rejects leading content before the value", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("x100-200").success).toBe(false);
+  });
+
+  it("accepts more than one fractional digit on either side of a decimal range", () => {
+    expect(BaseUnitsRangeStringSchema.safeParse("100.55-200.55").success).toBe(true);
+  });
+
   it("reports a helpful error message", () => {
     const result = BaseUnitsRangeStringSchema.safeParse("nope");
     expect(result.success).toBe(false);

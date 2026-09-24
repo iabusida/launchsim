@@ -36,6 +36,7 @@ describe("createSniperActors", () => {
 
   it("buys with the configured priority fee at the entry slot", () => {
     const [sniper] = createSniperActors(config, 1, 1_000, createRng(42));
+    expect(sniper?.actor.group).toBe("sniper");
     const orders = sniper?.actor.decide(ctxAt(0));
     expect(orders).toHaveLength(1);
     expect(orders?.[0]).toMatchObject({
@@ -109,5 +110,31 @@ describe("createSniperActors", () => {
       wallet: { quoteBalance: 0n, baseBalance: 1_000n, entryPrice: price(1n, 1n) },
     });
     expect(sniper?.actor.decide(holding)).toEqual([]);
+  });
+
+  it("does not buy at a slot other than the entry slot even when not holding", () => {
+    const [sniper] = createSniperActors(config, 1, 1_000, createRng(42));
+    expect(sniper?.actor.decide(ctxAt(5))).toEqual([]);
+  });
+
+  it("does not buy again at the entry slot if already holding", () => {
+    const [sniper] = createSniperActors(config, 1, 1_000, createRng(42));
+    const alreadyHolding = ctxAt(0, {
+      wallet: { quoteBalance: 0n, baseBalance: 1_000n, entryPrice: price(1n, 1n) },
+    });
+    expect(sniper?.actor.decide(alreadyHolding)).toEqual([]);
+  });
+
+  it("does nothing when not holding base, even with a stale entry price and a reached sell target", () => {
+    const [sniper] = createSniperActors(config, 1, 1_000, createRng(42));
+    const notHolding = ctxAt(10, {
+      market: {
+        state: { quoteReserve: 2_000_000n, baseReserve: 1_000_000n, quoteFeesCollected: 0n },
+        price: price(2n, 1n),
+        peakQuoteReserve: 2_000_000n,
+      },
+      wallet: { quoteBalance: 2_000_000_000n, baseBalance: 0n, entryPrice: price(1n, 1n) },
+    });
+    expect(sniper?.actor.decide(notHolding)).toEqual([]);
   });
 });

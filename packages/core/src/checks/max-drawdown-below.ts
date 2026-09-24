@@ -20,11 +20,18 @@ export function createMaxDrawdownBelowCheck(bps: bigint, window: number): Check 
       let worstDropBps = 0n;
       let worstSlot: number | null = null;
 
+      // Stryker disable next-line EqualityOperator: `i < length` vs `i <=
+      // length` are equivalent here -- the one extra iteration reads
+      // samples[length] (undefined), and the `!peak` guard below already
+      // skips it with no observable difference (verified 2026-09-24).
       for (let i = 0; i < samples.length; i++) {
         const peak = samples[i];
         if (!peak || peak.quoteReserve <= 0n) {
           continue;
         }
+        // Stryker disable next-line EqualityOperator: same reasoning as the
+        // outer loop -- the extra iteration reads an undefined `trough`,
+        // caught by the `!trough` guard below.
         for (let j = i + 1; j < samples.length; j++) {
           const trough = samples[j];
           if (!trough || trough.slot - peak.slot > window) {
