@@ -17,16 +17,25 @@ import whaleExitWithBuyback from "../../../scenarios/whale-exit-with-buyback.js"
 const SCENARIOS = [hourlyBurnLp, feeBuyback, whaleExitMaturePool, whaleExitWithBuyback];
 
 describe("shipped scenarios (docs/02)", () => {
-  it.each(SCENARIOS)("$name: running it twice with the same seed is byte-identical", (input) => {
-    const config = ScenarioConfigSchema.parse(input);
-    const a = runScenario(config);
-    const b = runScenario(config);
-    const canonical = (r: unknown): string =>
-      JSON.stringify(r, (_key: string, value: unknown): unknown =>
-        typeof value === "bigint" ? value.toString() : value,
-      );
-    expect(canonical(a)).toBe(canonical(b));
-  });
+  // Explicit timeout: this runs each scenario twice (some spanning 48h of
+  // 400ms slots), and the first test in the file also absorbs one-time
+  // module-load/JIT cost -- vitest's 5000ms default is comfortably enough
+  // locally (~270ms observed) but too tight under a slower/shared CI CPU,
+  // where the first case alone timed out at 5000ms in practice.
+  it.each(SCENARIOS)(
+    "$name: running it twice with the same seed is byte-identical",
+    (input) => {
+      const config = ScenarioConfigSchema.parse(input);
+      const a = runScenario(config);
+      const b = runScenario(config);
+      const canonical = (r: unknown): string =>
+        JSON.stringify(r, (_key: string, value: unknown): unknown =>
+          typeof value === "bigint" ? value.toString() : value,
+        );
+      expect(canonical(a)).toBe(canonical(b));
+    },
+    20_000,
+  );
 
   it("hourly-burn-lp.ts fails the liquidity check", () => {
     const result = runScenario(ScenarioConfigSchema.parse(hourlyBurnLp));
