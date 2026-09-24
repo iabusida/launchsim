@@ -1,0 +1,42 @@
+{
+  "name": "@launchsim/share",
+  "version": "0.0.0",
+  "description": "Hono app: /r/:id share page with a chain record panel, badge image, OG tags.",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "launchsim-share": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/bin.ts --format esm --dts --sourcemap --clean",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.1",
+    "@launchsim/registry": "workspace:*",
+    "@launchsim/report": "workspace:*",
+    "@resvg/resvg-js": "2.6.2",
+    "hono": "4.13.8",
+    "viem": "2.56.8"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.1.11",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

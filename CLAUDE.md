@@ -88,7 +88,7 @@ launchsim/
 └── examples/                # runnable end-to-end examples used in the README and videos
 ```
 
-`share/` is the last piece of target layout that doesn't exist yet; `blink/` and `testkit/` (as `export {}` placeholders), working `core`, `adapters`, `report`, `cli`, `mcp`, and now `registry` packages, and `contracts/` (a Foundry project, `ReportRegistry.sol` built and tested, not yet deployed anywhere), exist today. Dependency direction is one-way: `cli`/`mcp` → `report`/`adapters`/`registry` → `core` (`mcp` also depends on `cli` directly, reusing its `runScenario`/`runCommand` rather than a second implementation). `contracts/` is independent; `registry` consumes its ABI from Foundry's build output (a copy in `src/abi.ts`, drift-tested against `contracts/out/`). `core` depends on nothing internal. `testkit` is a devDependency only.
+`blink/` (as an `export {}` placeholder, the deferred Solana path) and `testkit/` (a devDependency-only fixture package, also not built yet) are the only pieces that don't exist as real code today; every other package in the target layout -- `core`, `adapters`, `report`, `cli`, `mcp`, `registry`, `share`, and `contracts/` (a Foundry project, `ReportRegistry.sol` built and tested, deployable but not yet deployed to a public network) -- is built. Dependency direction is one-way: `cli`/`mcp`/`share` → `report`/`adapters`/`registry` → `core` (`mcp` also depends on `cli` directly, reusing its `runScenario`/`runCommand` rather than a second implementation). `contracts/` is independent; `registry` consumes its ABI from Foundry's build output (a copy in `src/abi.ts`, drift-tested against `contracts/out/`). `core` depends on nothing internal. `testkit` is a devDependency only.
 
 ## 6. Commands
 

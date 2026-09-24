@@ -7,6 +7,7 @@ export { hashScenario } from "./hash-scenario.js";
 export { escapeHtml } from "./escape-html.js";
 
 export { buildRunResult } from "./run-result.js";
+export { parseRunResultJson } from "./parse-run-result.js";
 export type {
   RunResult,
   RunResultTool,
