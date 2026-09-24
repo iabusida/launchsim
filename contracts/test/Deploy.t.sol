@@ -14,7 +14,7 @@ contract DeployScriptTest is Test {
         ReportRegistry registry = deployer.run();
 
         assertTrue(address(registry).code.length > 0);
-        assertFalse(registry.isRecorded(keccak256("anything")));
+        assertFalse(registry.isRecorded(bytes32(0)));
 
         registry.record(
             keccak256("report"), keccak256("scenario"), 1, 1, "0.1.0", "https://example.com"
