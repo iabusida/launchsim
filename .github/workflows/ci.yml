@@ -21,9 +21,13 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Build first: packages resolve each other through their package.json
+      # "exports" (-> dist/*.d.ts), so on a fresh checkout with no dist/,
+      # both eslint's type-aware rules and tsc see cross-package imports as
+      # unresolved/`any` unless the workspace is built first.
+      - run: pnpm build
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm build
 
   test:
     runs-on: ubuntu-latest
@@ -33,6 +37,9 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Same reason as verify: cross-package imports resolve through
+      # dist/*.js at runtime, which doesn't exist on a fresh checkout.
+      - run: pnpm build
       - run: pnpm test
       - uses: actions/upload-artifact@v7
         if: always()
