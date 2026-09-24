@@ -7,8 +7,8 @@ export interface QuoteUnit {
 }
 
 /**
- * Formats a quote amount (in its smallest base unit, e.g. wei for MON or
- * lamports for SOL) as a decimal string, e.g. `"12.34 MON"`. Rounds down
+ * Formats a quote amount (in its smallest base unit, e.g. wei for MON) as
+ * a decimal string, e.g. `"12.34 MON"`. Rounds down
  * (floors) rather than rounding nearest, consistent with the pool-favoring
  * rounding used everywhere else (docs/08); exact bigint arithmetic
  * throughout, no float conversion.

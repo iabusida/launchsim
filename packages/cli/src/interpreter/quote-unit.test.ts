@@ -6,8 +6,8 @@ describe("quoteUnitFromAmount", () => {
     expect(quoteUnitFromAmount("180000 MON")).toEqual({ symbol: "MON", decimals: 18 });
   });
 
-  it("recognizes SOL as 9 decimals (deferred Solana path)", () => {
-    expect(quoteUnitFromAmount("2 SOL")).toEqual({ symbol: "SOL", decimals: 9 });
+  it("throws on SOL (Solana is not a supported chain -- ADR 0006)", () => {
+    expect(() => quoteUnitFromAmount("2 SOL")).toThrow(/unsupported unit/);
   });
 
   it("recognizes a range string's unit", () => {

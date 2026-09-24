@@ -54,14 +54,6 @@ Pump-style curves behave like a constant-product pool over **virtual** reserves.
 - Check Monad's developer docs for known differences from Ethereum execution (e.g. parallel execution, gas accounting) that affect forking or ordering, and record them in `notSimulated`.
 - Tests are `*.int.test.ts`, excluded from the unit gate, run in the `integration` CI job with Foundry installed. Parity tests against `math/nadfun-curve`.
 
-## Later: Solana chain adapters (`surfpool/*`, deferred)
-
-- Start a Surfpool instance (mainnet fork, copy-on-read) or LiteSVM in-process for speed.
-- Load the target launchpad program (by program id from mainnet fork, or a local `.so`) and its IDL; generate a typed client with Codama.
-- Map `buy`/`sell`/`burnFromPool` to real instructions. Actors get generated keypairs funded via Surfpool cheatcodes.
-- Priority ordering within a slot is approximated by submission order; document the gap versus real leader behavior in `notSimulated`.
-- Tests: tagged `@integration`, excluded from the unit coverage gate, run in a dedicated CI job with Surfpool installed.
-
 ### Parity tests
 
 For each math adapter with a chain counterpart, run the same short scenario in both modes and assert:
@@ -80,6 +72,3 @@ Parity failures block releases of either adapter.
 | `math/nadfun-curve` | math | **now — Monad hackathon** |
 | `anvil/nadfun` | chain | stretch / right after hackathon |
 | `math/pons-curve`, `anvil/pons` | math/chain | after hackathon (Robinhood Chain) |
-| `surfpool/meteora-dbc` | chain | Solana path (strong fee-scheduler/anti-sniper features to test) |
-| `surfpool/raydium-launchlab` | chain | after spike |
-| `surfpool/custom-idl` | chain | later (any program with an IDL + mapping file) |

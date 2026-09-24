@@ -6,7 +6,7 @@ describe("ActorConfigSchema", () => {
     const result = ActorConfigSchema.safeParse({
       group: "retail",
       count: 300,
-      spend: "0.1-1 SOL",
+      spend: "0.1-1 MON",
       over: "6h",
       takeProfitX: 2,
       stopLossPct: "50%",
@@ -19,13 +19,13 @@ describe("ActorConfigSchema", () => {
     const result = ActorConfigSchema.parse({
       group: "retail",
       count: 300,
-      spend: "1 SOL",
+      spend: "1 MON",
       over: "6h",
     });
     expect(result).toEqual({
       group: "retail",
       count: 300,
-      spend: "1 SOL",
+      spend: "1 MON",
       over: "6h",
       takeProfitX: 2,
       stopLossPct: "50%",
@@ -34,7 +34,7 @@ describe("ActorConfigSchema", () => {
   });
 
   it("accepts a sniper actor and defaults slot:0", () => {
-    const result = ActorConfigSchema.parse({ group: "sniper", count: 5, spend: "2 SOL" });
+    const result = ActorConfigSchema.parse({ group: "sniper", count: 5, spend: "2 MON" });
     if (result.group !== "sniper") {
       throw new Error("expected a sniper actor");
     }
@@ -44,19 +44,19 @@ describe("ActorConfigSchema", () => {
   });
 
   it("accepts a bundler actor with defaults", () => {
-    const result = ActorConfigSchema.parse({ group: "bundler", totalSpend: "10 SOL" });
+    const result = ActorConfigSchema.parse({ group: "bundler", totalSpend: "10 MON" });
     expect(result).toEqual({
       group: "bundler",
       wallets: 10,
-      totalSpend: "10 SOL",
+      totalSpend: "10 MON",
       trancheBps: 2000,
       sellEvery: "10m",
     });
   });
 
   it("accepts a whale actor with defaults", () => {
-    const result = ActorConfigSchema.parse({ group: "whale", spend: "50 SOL" });
-    expect(result).toEqual({ group: "whale", spend: "50 SOL", at: "30m", sellAtX: 3 });
+    const result = ActorConfigSchema.parse({ group: "whale", spend: "50 MON" });
+    expect(result).toEqual({ group: "whale", spend: "50 MON", at: "30m", sellAtX: 3 });
   });
 
   it("accepts a panicSeller actor with defaults", () => {
@@ -74,11 +74,11 @@ describe("ActorConfigSchema", () => {
   });
 
   it("accepts a flipper actor with defaults", () => {
-    const result = ActorConfigSchema.parse({ group: "flipper", count: 10, spend: "0.1-0.5 SOL" });
+    const result = ActorConfigSchema.parse({ group: "flipper", count: 10, spend: "0.1-0.5 MON" });
     expect(result).toEqual({
       group: "flipper",
       count: 10,
-      spend: "0.1-0.5 SOL",
+      spend: "0.1-0.5 MON",
       cycleEvery: "5m",
       momentumWindow: 3,
     });
@@ -92,7 +92,7 @@ describe("ActorConfigSchema", () => {
   it("rejects an unknown key (zod .strict())", () => {
     const result = ActorConfigSchema.safeParse({
       group: "whale",
-      spend: "50 SOL",
+      spend: "50 MON",
       typo: true,
     });
     expect(result.success).toBe(false);
@@ -102,7 +102,7 @@ describe("ActorConfigSchema", () => {
     const result = ActorConfigSchema.safeParse({
       group: "retail",
       count: 0,
-      spend: "1 SOL",
+      spend: "1 MON",
       over: "6h",
     });
     expect(result.success).toBe(false);

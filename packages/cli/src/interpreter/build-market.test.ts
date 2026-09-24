@@ -52,13 +52,14 @@ describe("buildMarket", () => {
     expect(quoteUnit).toEqual({ symbol: "MON", decimals: 18 });
   });
 
-  it("supports a SOL-denominated market (deferred Solana path)", () => {
-    const { quoteUnit } = buildMarket({
-      kind: "cpmm",
-      quote: "30 SOL",
-      base: "1000000",
-      feeBps: "1%",
-    });
-    expect(quoteUnit).toEqual({ symbol: "SOL", decimals: 9 });
+  it("throws on a SOL-denominated market (Solana is not a supported chain -- ADR 0006)", () => {
+    expect(() =>
+      buildMarket({
+        kind: "cpmm",
+        quote: "30 SOL",
+        base: "1000000",
+        feeBps: "1%",
+      }),
+    ).toThrow(/unsupported unit/);
   });
 });

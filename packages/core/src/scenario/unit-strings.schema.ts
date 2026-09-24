@@ -7,10 +7,10 @@ import { z } from "zod";
 // still happens via the dedicated parse-*.ts helpers, not here (docs/08:
 // "Inside core, types are trusted" -- the string is the trusted value).
 
-/** A single amount, e.g. `"2 MON"` or `"2 SOL"` (deferred path) (see `math/parse-amount.ts`). */
+/** A single amount, e.g. `"2 MON"` (see `math/parse-amount.ts`). */
 export const AmountStringSchema = z
   .string()
-  .regex(/^[\d.]+\s+(MON|SOL)$/, 'expected an amount like "2 MON"');
+  .regex(/^[\d.]+\s+MON$/, 'expected an amount like "2 MON"');
 
 /**
  * A single amount or an inclusive range, e.g. `"2 MON"` or `"0.1-1 MON"`.
@@ -20,7 +20,7 @@ export const AmountStringSchema = z
 export const AmountRangeStringSchema = z
   .string()
   .regex(
-    /^[\d.]+(-[\d.]+)?\s+(MON|SOL)$/,
+    /^[\d.]+(-[\d.]+)?\s+MON$/,
     'expected an amount like "2 MON" or a range like "0.1-1 MON"',
   );
 

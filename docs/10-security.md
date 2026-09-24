@@ -6,7 +6,7 @@ launchsim touches money-adjacent code and publishes public reports. Security her
 
 - The toolkit **never** asks for, reads, or stores a mainnet private key. There is no config option for one.
 - Chain mode generates throwaway keypairs per run, funded through local Surfpool/LiteSVM cheatcodes only.
-- The Blink server does not sign or submit transactions (v1 has no POST).
+- The share server does not sign or submit transactions (v1 has no POST).
 - `.gitignore` includes `*.json` keypair patterns under `keys/`, `.env*`; a secret scanner (gitleaks) runs in CI.
 
 ## Untrusted inputs
@@ -18,8 +18,8 @@ launchsim touches money-adjacent code and publishes public reports. Security her
 
 ## Report integrity
 
-- `RunResult` includes the scenario hash and tool version; the Blink shows both.
-- Reports must never use the words "safe", "audited", "secure", or "rug-proof". A test scans rendered report and Blink text for a deny-list of such claims.
+- `RunResult` includes the scenario hash and tool version; the share page shows both.
+- Reports must never use the words "safe", "audited", "secure", or "rug-proof". A test scans rendered report and share page text for a deny-list of such claims.
 - The "What was not simulated" section is mandatory and non-empty.
 - Stored reports are immutable: `runId` is derived from the content hash, so a changed report gets a new ID.
 

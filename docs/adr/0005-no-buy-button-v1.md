@@ -1,15 +1,15 @@
-# ADR 0005 — No buy button in v1 Blinks
+# ADR 0005 — No buy button in v1 reports
 
 - **Status:** Accepted
 - **Date:** 2026-09-22
 
 ## Context
 
-A Blink can include a transaction button (e.g. "Buy 0.1 SOL"). That would boost hype and conversion, but it turns a neutral crash-test report into a promotion tool for the token being tested, creates conflict-of-interest and legal questions, and would require building and securing transaction construction.
+A share page (or badge) could include a transaction button (e.g. "Buy 0.1 MON"). That would boost hype and conversion, but it turns a neutral crash-test report into a promotion tool for the token being tested, creates conflict-of-interest and legal questions, and would require building and securing transaction construction.
 
 ## Decision
 
-v1 Blinks are informational only: a summary card and a link to the full report. No POST endpoint, no transaction.
+v1 reports are informational only: a summary card, the chain-record panel, and a link to the full report. No POST endpoint, no transaction.
 
 ## Consequences
 

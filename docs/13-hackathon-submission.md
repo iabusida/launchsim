@@ -11,7 +11,7 @@
 2. **The demo:** one command runs the LP-burn scenario on a Nad.fun-style curve → ✗ pool drains. Same launch with fee-funded buyback → ✓ holds. Charts side by side.
 3. **The trust layer:** the report is recorded on Monad; the share page shows "Recorded on Monad · hash matches". Edit one byte of the report → "Mismatch".
 4. **Why it matters for Monad:** Nad.fun and future Monad launchpads can crash-test mechanics and publish tamper-evident results. Bundler tooling already targets Nad.fun.
-5. **What's next:** Anvil-fork runs against Nad.fun's real contracts, replay-calibrated actors, AI red-team, Solana/Blink.
+5. **What's next:** Anvil-fork runs against Nad.fun's real contracts, replay-calibrated actors, AI red-team.
 
 ## Deliverables checklist
 

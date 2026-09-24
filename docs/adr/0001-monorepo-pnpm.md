@@ -5,7 +5,7 @@
 
 ## Context
 
-The engine, report, Blink server, CLI, and adapters are all TypeScript, change together, and ship together. A change to the `RunResult` schema touches the engine, report, and Blink at once. Future on-chain modules (Rust/Anchor) have different tooling, audit needs, and risk.
+The engine, report, share server, CLI, and adapters are all TypeScript, change together, and ship together. A change to the `RunResult` schema touches the engine, report, and share server at once. On-chain modules (Solidity/Foundry, in `contracts/`) have different tooling, audit needs, and risk, and stay a separate project within the same repo.
 
 ## Decision
 

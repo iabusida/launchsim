@@ -8,7 +8,6 @@ import type { QuoteUnit } from "@launchsim/report";
  */
 const QUOTE_UNITS: Readonly<Record<string, QuoteUnit>> = {
   MON: { symbol: "MON", decimals: 18 },
-  SOL: { symbol: "SOL", decimals: 9 },
 };
 
 const TRAILING_UNIT = /(\S+)$/;

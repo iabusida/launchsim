@@ -5,11 +5,11 @@
 
 ## Context
 
-Running every simulated trade as a real transaction on a local chain is the most faithful approach but slow to build and to run, and hard to unit-test. The MVP needs a working before/after demo in two weeks. Existing Solana tooling (LiteSVM, Surfpool) is mature enough to add chain mode later.
+Running every simulated trade as a real transaction on a local chain is the most faithful approach but slow to build and to run, and hard to unit-test. The MVP needs a working before/after demo in two weeks. Foundry's Anvil is mature enough to add chain mode later, forking Monad directly.
 
 ## Decision
 
-Build a pure TypeScript **math mode** first behind a `Market` interface. Add a **chain mode** (`ChainMarket` on Surfpool/LiteSVM) after the spike. Require **parity tests** that run the same scenario in both modes and compare results within a documented tolerance.
+Build a pure TypeScript **math mode** first behind a `Market` interface. Add a **chain mode** (`ChainMarket` on an Anvil fork of Monad) after the spike. Require **parity tests** that run the same scenario in both modes and compare results within a documented tolerance.
 
 ## Consequences
 

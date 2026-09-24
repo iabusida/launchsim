@@ -43,7 +43,7 @@ describe("renderTerminalReport", () => {
             id: "a",
             kind: "quoteNeverBelowPctOfPeak",
             passed: false,
-            summary: "pool SOL fell to 18% of peak at hour 31",
+            summary: "pool MON fell to 18% of peak at hour 31",
             observed: "1800",
             threshold: "5000",
             atSlot: 100,
@@ -61,7 +61,7 @@ describe("renderTerminalReport", () => {
       }),
       "./out/index.html",
     );
-    expect(output).toContain("✗ pool SOL fell to 18% of peak at hour 31");
+    expect(output).toContain("✗ pool MON fell to 18% of peak at hour 31");
     expect(output).toContain("✓ max 1h drawdown 41% (limit 80%)");
   });
 

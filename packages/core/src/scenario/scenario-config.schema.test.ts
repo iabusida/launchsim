@@ -11,18 +11,18 @@ const fullConfig = {
   token: { symbol: "TEST", decimals: 6, supply: "1000000000" },
   market: {
     kind: "pump-curve",
-    virtualQuote: "30 SOL",
+    virtualQuote: "30 MON",
     virtualBase: "1073000000000000",
     feeBps: "1%",
-    graduationQuote: "85 SOL",
+    graduationQuote: "85 MON",
   },
   mechanics: [{ kind: "lpBurn", perHour: ["5%", "4%", "3%", "1%"], stepEvery: "24h" }],
   actors: [
-    { group: "sniper", count: 5, spend: "2 SOL", at: "slot:0", holdSlots: 150, sellAtX: 2 },
+    { group: "sniper", count: 5, spend: "2 MON", at: "slot:0", holdSlots: 150, sellAtX: 2 },
     {
       group: "retail",
       count: 300,
-      spend: "0.1-1 SOL",
+      spend: "0.1-1 MON",
       over: "6h",
       takeProfitX: 2,
       stopLossPct: "50%",
@@ -47,7 +47,7 @@ describe("ScenarioConfigSchema", () => {
       name: "baseline",
       duration: "48h",
       token: { supply: "1000000000" },
-      market: { kind: "cpmm", quote: "30 SOL", base: "1000000000", feeBps: "1%" },
+      market: { kind: "cpmm", quote: "30 MON", base: "1000000000", feeBps: "1%" },
     });
     expect(result.seed).toBe(42);
     expect(result.sampleEvery).toBe("1m");

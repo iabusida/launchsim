@@ -3,17 +3,17 @@
 ## Scope
 
 launchsim is a simulation and reporting toolkit. It never asks for, reads, or
-stores a mainnet private key, and the Blink server never signs or submits
+stores a mainnet private key, and the share server never signs or submits
 transactions (see `docs/10-security.md`). Security reports in scope include:
 
-- Key or secret exposure in the toolkit, CLI, or Blink server.
+- Key or secret exposure in the toolkit, CLI, or share server.
 - Ways a scenario or report could produce a misleading result (e.g. a check
   that silently passes when it should fail).
-- Injection or XSS in the HTML report or Blink endpoint.
-- Path traversal, SSRF, or other request-handling bugs in `packages/blink`.
+- Injection or XSS in the HTML report or share endpoint.
+- Path traversal, SSRF, or other request-handling bugs in `packages/share`.
 - Supply-chain issues (compromised dependency, broken provenance).
 
-Out of scope: vulnerabilities in third-party Solana programs, launchpads, or
+Out of scope: vulnerabilities in third-party programs, launchpads, or
 tokens that launchsim merely simulates against.
 
 ## Reporting a vulnerability

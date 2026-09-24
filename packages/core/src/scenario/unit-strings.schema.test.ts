@@ -18,12 +18,8 @@ describe("AmountStringSchema", () => {
     expect(AmountStringSchema.safeParse("0.5 MON").success).toBe(true);
   });
 
-  it("accepts a whole SOL amount (deferred Solana path)", () => {
-    expect(AmountStringSchema.safeParse("2 SOL").success).toBe(true);
-  });
-
-  it("accepts a fractional SOL amount (deferred Solana path)", () => {
-    expect(AmountStringSchema.safeParse("0.5 SOL").success).toBe(true);
+  it("rejects SOL (Solana is not a supported chain -- ADR 0006)", () => {
+    expect(AmountStringSchema.safeParse("2 SOL").success).toBe(false);
   });
 
   it("accepts more than one space between the value and the unit", () => {
@@ -66,12 +62,8 @@ describe("AmountRangeStringSchema", () => {
     expect(AmountRangeStringSchema.safeParse("0.1-1 MON").success).toBe(true);
   });
 
-  it("accepts a single SOL amount (deferred Solana path)", () => {
-    expect(AmountRangeStringSchema.safeParse("2 SOL").success).toBe(true);
-  });
-
-  it("accepts a SOL range (deferred Solana path)", () => {
-    expect(AmountRangeStringSchema.safeParse("0.1-1 SOL").success).toBe(true);
+  it("rejects SOL (Solana is not a supported chain -- ADR 0006)", () => {
+    expect(AmountRangeStringSchema.safeParse("0.1-1 SOL").success).toBe(false);
   });
 
   it("accepts more than one space between the value and the unit", () => {
@@ -117,7 +109,7 @@ describe("BaseUnitsStringSchema", () => {
   });
 
   it("rejects a string with a unit suffix", () => {
-    expect(BaseUnitsStringSchema.safeParse("1000 SOL").success).toBe(false);
+    expect(BaseUnitsStringSchema.safeParse("1000 MON").success).toBe(false);
   });
 
   it("rejects a decimal point with no fractional digits", () => {
@@ -145,7 +137,7 @@ describe("BaseUnitsRangeStringSchema", () => {
   });
 
   it("rejects a string with a unit suffix", () => {
-    expect(BaseUnitsRangeStringSchema.safeParse("100-200 SOL").success).toBe(false);
+    expect(BaseUnitsRangeStringSchema.safeParse("100-200 MON").success).toBe(false);
   });
 
   it("rejects a malformed range", () => {

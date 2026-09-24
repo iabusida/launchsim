@@ -2,7 +2,7 @@
 
 **Crash-test your Monad token launch against snipers, bundlers, and bad tokenomics — then record the result on-chain so nobody can fake it.**
 
-> Status: Monad Metropolis hackathon build (track: Trust/Identity & AI Infrastructure), submission Oct 13, 2026. Working name; may change. Solana + Blinks are a deferred path, not current scope.
+> Status: Monad Metropolis hackathon build (track: Trust/Identity & AI Infrastructure), submission Oct 13, 2026. Working name; may change.
 
 launchsim runs your launch setup (a bonding curve or an AMM pool, plus mechanics like burns or buybacks) inside a simulated market full of scripted actors — retail, snipers, bundlers, a whale, panic sellers. You get pass/fail checks, a deterministic JSON result, a shareable HTML report, and an immutable on-chain record of that result via a `ReportRegistry` contract on Monad, so a launchpad or a token team can post one link and anyone can verify the report hasn't been quietly edited.
 

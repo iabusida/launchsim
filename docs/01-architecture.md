@@ -8,7 +8,7 @@
                         ▼
                  ┌─────────────┐     Market (interface)
                  │   Engine    │◄──── MathMarket   (math mode: pump, cpmm, nadfun)
-                 │  (core)     │◄──── ChainMarket  (anvil fork of Monad, later; surfpool for Solana)
+                 │  (core)     │◄──── ChainMarket  (anvil fork of Monad, later)
                  └─────┬───────┘
       Clock ──► events │ actors decide → orders → market executes → mechanics run
                        ▼
@@ -32,7 +32,7 @@
                                    "Recorded on Monad · hash matches"
 ```
 
-> Current target is Monad (ADR 0006). The Solana Blink endpoint (`blink`) is the deferred second path.
+> Target is Monad (ADR 0006).
 
 ## Packages
 
@@ -44,15 +44,14 @@
 | `report` | `RunResult` → terminal text, JSON file, HTML with inline SVG | Filesystem via injected writer | 100% | built (M0–M4) |
 | `registry` | viem client: report hash, build `record` call, read records | Chain RPC (reads only) | 100% (fake transport) + Anvil integration | built (2026-09-23) |
 | `share` | Hono app: `/r/:id` share page with chain record panel, badge image, OG tags | HTTP, chain reads | 100% | built (2026-09-23) |
-| `contracts/` (Foundry) | `ReportRegistry.sol`, deploy script | on-chain | 100% lines + branches (`forge coverage`) | not started (M5-Monad) |
-| `blink` *(deferred)* | Solana Actions endpoint — Solana path only | HTTP | 100% when built | placeholder |
-| `cli` | Commands `run` (done), `report`, `serve`, `publish`, `verify`; the `ScenarioConfig → RunResult` interpreter | FS, process, HTTP | 100% (commands tested with injected I/O) | `run` built (2026-09-23): loads a scenario module, writes `launchsim-report/{index.html,result.json}`, sets the exit code |
+| `contracts/` (Foundry) | `ReportRegistry.sol`, deploy script | on-chain | 100% lines + branches (`forge coverage`) | built and deployed to Monad testnet |
+| `cli` | Commands `run`, `publish`, `verify`; the `ScenarioConfig → RunResult` interpreter | FS, process, HTTP | 100% (commands tested with injected I/O) | built |
 | `mcp` | MCP server: one tool, `crash_test_scenario`, wrapping `@launchsim/cli`'s `runScenario` (docs/09 Phase B — the AI Infrastructure half of the track) | stdio (MCP transport) | 100% (real client/server integration tests via `InMemoryTransport`) | built (2026-09-23) |
 
 ### Dependency rules
 
 - `core` imports nothing internal and no Node built-ins with side effects.
-- `report`, `blink`, `adapters` import `core` types and pure helpers only.
+- `report`, `adapters` import `core` types and pure helpers only.
 - `cli` wires everything together. It is the only place that reads env vars or argv.
 - Enforced by ESLint `import/no-restricted-paths` (or `dependency-cruiser`) in CI.
 
@@ -72,7 +71,7 @@
 ## Two engine modes (ADR 0002)
 
 1. **Math mode (v1).** `MathMarket` implements curve/pool math in pure TypeScript with `bigint`. Fast (48h of trading in well under a second), fully deterministic, trivially unit-testable.
-2. **Chain mode (later).** `ChainMarket` sends real transactions to a local Anvil fork of Monad running the actual launchpad contract (Surfpool/LiteSVM for the deferred Solana path). Slower, but tests the real program.
+2. **Chain mode (later).** `ChainMarket` sends real transactions to a local Anvil fork of Monad running the actual launchpad contract. Slower, but tests the real program.
 
 **Parity tests** run the same scenario in both modes and require results within a documented tolerance. Parity is what lets us trust math mode for fast iteration.
 

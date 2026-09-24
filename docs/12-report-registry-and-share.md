@@ -1,6 +1,6 @@
 # 12 — Report registry and share page
 
-Replaces the Solana Blink for the Monad build (ADR 0006, 0007). Three parts: a contract, a TypeScript client, and a share page.
+The Monad build's shareable, tamper-evident artifact (ADR 0006, 0007). Three parts: a contract, a TypeScript client, and a share page.
 
 ## 1. `contracts/` — `ReportRegistry.sol` (Foundry)
 

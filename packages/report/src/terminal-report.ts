@@ -4,7 +4,7 @@ import type { RunResult } from "./run-result.js";
  * Renders a `RunResult` as the terminal summary (docs/04):
  * ```
  * ✗ hourly burn from LP   (seed 42 · math mode · launchsim 0.1.0)
- *   ✗ pool SOL fell to 18% of peak at hour 31
+ *   ✗ pool MON fell to 18% of peak at hour 31
  *   report → ./launchsim-report/index.html
  * ```
  *

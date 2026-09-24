@@ -20,10 +20,6 @@ describe("parseAmountRange", () => {
     });
   });
 
-  it("parses a SOL range (deferred Solana path)", () => {
-    expect(parseAmountRange("1-2 SOL")).toEqual({ min: 1_000_000_000n, max: 2_000_000_000n });
-  });
-
   it("throws when the range is malformed", () => {
     expect(() => parseAmountRange("0.1- MON")).toThrow(/invalid amount range/);
   });
@@ -49,6 +45,10 @@ describe("parseAmountRange", () => {
 
   it("throws on an unsupported unit", () => {
     expect(() => parseAmountRange("0.1-1 USDC")).toThrow(/unsupported unit/);
+  });
+
+  it("throws on SOL (Solana is not a supported chain -- ADR 0006)", () => {
+    expect(() => parseAmountRange("1-2 SOL")).toThrow(/unsupported unit/);
   });
 
   it("throws when min is greater than max", () => {

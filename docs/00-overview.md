@@ -2,7 +2,7 @@
 
 ## The problem
 
-Testing whether smart-contract **code works** is well served: Foundry and Hardhat on EVM, LiteSVM, Mollusk and Surfpool on Solana. Testing what happens when **the market attacks** a launch is not.
+Testing whether smart-contract **code works** is well served: Foundry and Hardhat on EVM. Testing what happens when **the market attacks** a launch is not.
 
 A launch can be bug-free and still fail:
 
@@ -17,7 +17,7 @@ None of that shows up in a unit test. It shows up after real money is lost.
 1. Runs a launch setup inside a simulated market with scripted actors.
 2. Evaluates checks that must hold.
 3. Produces a deterministic `RunResult`, a terminal summary, and an HTML report.
-4. Records the report's hash on-chain in a `ReportRegistry` (Monad first, ADR 0006/0007) so it can be checked and shared; the deferred Solana path (ADR 0006) instead serves it as a Blink so it can travel on X.
+4. Records the report's hash on-chain in a `ReportRegistry` (Monad, ADR 0006/0007) so it can be checked and shared via the share page.
 
 ## Users (in priority order)
 
@@ -30,7 +30,7 @@ Indirect beneficiary: **retail buyers**, who can read a report before buying.
 
 ## Scope for v1
 
-- Monad first (ADR 0006); Solana and the Blink are deferred.
+- Monad (ADR 0006).
 - Math mode (pure TypeScript market models) for pump-style curves, constant-product pools, and a Nad.fun-style curve.
 - Six actor types, three core checks, two mechanics (LP burn, fee-funded buyback-and-burn).
 - CLI, HTML report, on-chain `ReportRegistry` + share page (Monad).
@@ -38,7 +38,6 @@ Indirect beneficiary: **retail buyers**, who can read a report before buying.
 ## Non-goals (for now)
 
 - A web IDE or playground (later phase).
-- The Solana Blink endpoint (later: after the Monad hackathon submission).
 - Auditing arbitrary program code for bugs.
 - Running live trading strategies or sniping.
 - Claiming any token is safe.

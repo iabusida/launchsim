@@ -5,10 +5,10 @@ describe("MarketConfigSchema", () => {
   it("accepts a pump-curve config", () => {
     const result = MarketConfigSchema.safeParse({
       kind: "pump-curve",
-      virtualQuote: "30 SOL",
+      virtualQuote: "30 MON",
       virtualBase: "1073000000000000",
       feeBps: "1%",
-      graduationQuote: "85 SOL",
+      graduationQuote: "85 MON",
     });
     expect(result.success).toBe(true);
   });
@@ -38,7 +38,7 @@ describe("MarketConfigSchema", () => {
   it("accepts a cpmm config", () => {
     const result = MarketConfigSchema.safeParse({
       kind: "cpmm",
-      quote: "100 SOL",
+      quote: "100 MON",
       base: "1000000000000",
       feeBps: "0.3%",
     });
@@ -53,7 +53,7 @@ describe("MarketConfigSchema", () => {
   it("rejects an unknown key (zod .strict())", () => {
     const result = MarketConfigSchema.safeParse({
       kind: "cpmm",
-      quote: "100 SOL",
+      quote: "100 MON",
       base: "1000000000000",
       feeBps: "0.3%",
       typo: true,
@@ -64,7 +64,7 @@ describe("MarketConfigSchema", () => {
   it("rejects a base supply that is not a plain decimal string", () => {
     const result = MarketConfigSchema.safeParse({
       kind: "cpmm",
-      quote: "100 SOL",
+      quote: "100 MON",
       base: "1_000_000",
       feeBps: "0.3%",
     });
@@ -77,7 +77,7 @@ describe("MarketConfigSchema", () => {
       virtualQuote: "30",
       virtualBase: "1073000000000000",
       feeBps: "1%",
-      graduationQuote: "85 SOL",
+      graduationQuote: "85 MON",
     });
     expect(result.success).toBe(false);
   });

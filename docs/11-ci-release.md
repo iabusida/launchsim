@@ -41,7 +41,7 @@ Pin third-party actions to a commit SHA before the first public release.
 ## Versioning and publishing
 
 - Changesets: every PR that changes a published package adds a changeset.
-- Published packages: `@launchsim/core`, `@launchsim/report`, `@launchsim/blink`, `@launchsim/cli` (bin `launchsim`). `testkit` is private. Adapters ship inside `@launchsim/adapters`.
+- Published packages: `@launchsim/core`, `@launchsim/report`, `@launchsim/registry`, `@launchsim/share`, `@launchsim/mcp`, `@launchsim/cli` (bin `launchsim`). `testkit` is private. Adapters ship inside `@launchsim/adapters`.
 - Pre-1.0: minor bumps may break APIs; `RunResult.schemaVersion` changes are always called out in the changelog.
 - Release workflow on merge of the Changesets "Version Packages" PR: build → test → publish to npm with `--provenance` → GitHub release with changelog → upload TypeDoc site.
 

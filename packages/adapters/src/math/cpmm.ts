@@ -1,7 +1,7 @@
 import { bpsOf, mulDiv } from "@launchsim/core";
 
 /**
- * A constant-product (x*y=k) pool's state: quote (SOL, lamports) against
+ * A constant-product (x*y=k) pool's state: quote (MON, lamports) against
  * base (token base units), plus an accumulated, separately-withdrawable
  * fee balance (docs/02: "trading fees accrue in quote").
  */
@@ -26,7 +26,7 @@ export interface CpmmQuote {
  * @param feeBps - Trading fee taken from every swap, in basis points. Must be non-negative.
  * @example
  * ```ts
- * createCpmm(100_000_000_000n, 1_000_000_000_000n, 100n); // 100 SOL / 1e12 base, 1% fee
+ * createCpmm(100_000_000_000n, 1_000_000_000_000n, 100n); // 100 MON / 1e12 base, 1% fee
  * ```
  */
 export function createCpmm(quoteReserve: bigint, baseReserve: bigint, feeBps: bigint): CpmmState {

@@ -26,7 +26,7 @@ describe("MechanicConfigSchema", () => {
       kind: "feeBuyback",
       interval: "1h",
       feeShareBps: 10_000,
-      minBuy: "0.01 SOL",
+      minBuy: "0.01 MON",
     });
     expect(result.success).toBe(true);
   });

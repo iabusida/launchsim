@@ -7,8 +7,8 @@
 | 02 | [Scenario spec](./02-scenario-spec.md) | Scenario DSL, config schema, clock, mechanics, the hourly-burn example |
 | 03 | [Actors](./03-actors.md) | Simulated trader types, parameters, calibration and honesty |
 | 04 | [Checks and report](./04-checks-and-report.md) | Check catalog, `RunResult` schema, HTML report rules |
-| 05 | [Blink / Solana Actions](./05-blink-actions.md) | *Deferred Solana path* — endpoint design, headers, CORS |
-| 06 | [Market adapters](./06-market-adapters.md) | Market interface, pump curve and CPMM math, Nad.fun curve, Surfpool mode |
+| 05 | *(removed)* | Was a deferred Solana Actions design; the project targets Monad only |
+| 06 | [Market adapters](./06-market-adapters.md) | Market interface, pump curve and CPMM math, Nad.fun curve, Anvil fork mode |
 | 07 | [Testing and TDD](./07-testing-tdd.md) | Mandatory workflow, test pyramid, coverage, mutation, Foundry/Solidity |
 | 08 | [Coding standards](./08-coding-standards.md) | TypeScript config, bigint money, errors, TSDoc |
 | 09 | [Roadmap / MVP](./09-roadmap-mvp.md) | Monad hackathon plan, milestones, go/no-go criteria |
@@ -26,8 +26,8 @@
 | [0002](./adr/0002-two-engine-modes.md) | Math mode first, chain-backed mode second, parity tests between them |
 | [0003](./adr/0003-bigint-fixed-point.md) | `bigint` fixed-point for all money and reserves |
 | [0004](./adr/0004-deterministic-simulation.md) | Seeded, discrete-event, fully deterministic engine |
-| [0005](./adr/0005-no-buy-button-v1.md) | No buy button in v1 Blinks |
-| [0006](./adr/0006-evm-monad-first.md) | EVM (Monad) first, Solana second |
+| [0005](./adr/0005-no-buy-button-v1.md) | No buy button in v1 reports |
+| [0006](./adr/0006-evm-monad-first.md) | Target Monad |
 | [0007](./adr/0007-onchain-report-registry.md) | Immutable on-chain ReportRegistry on Monad |
 
 New decisions get a new ADR (copy `adr/template.md`). ADRs are never edited after acceptance; supersede them with a new one.
