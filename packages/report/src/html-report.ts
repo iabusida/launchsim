@@ -1,8 +1,9 @@
+import type { MechanicEvent } from "@launchsim/core";
 import type { RunResult } from "./run-result.js";
 import { escapeHtml } from "./escape-html.js";
 import { formatQuoteAmount, type QuoteUnit } from "./format/format-quote-amount.js";
 import { downsample } from "./chart/downsample.js";
-import { renderLineChart } from "./chart/render-line-chart.js";
+import { renderLineChart, type ChartMarker } from "./chart/render-line-chart.js";
 import { summarizeGroups } from "./group-summary.js";
 
 const CHART_WIDTH = 600;
@@ -27,6 +28,42 @@ function renderChecksSection(result: RunResult): string {
   return `<section><h2>Checks</h2><ul class="checks">${items}</ul></section>`;
 }
 
+/**
+ * One marker per distinct mechanic, at its *first* firing -- a mechanic
+ * fires every due slot for the whole run (docs/02), so marking every
+ * occurrence on a scenario that fires dozens of times turns the chart
+ * into a solid bar instead of showing anything. The count in the label
+ * still says how often it ran.
+ */
+function mechanicMarkers(events: readonly MechanicEvent[]): readonly ChartMarker[] {
+  const firstByMechanic = new Map<string, { slot: number; count: number }>();
+  for (const event of events) {
+    const existing = firstByMechanic.get(event.mechanicId);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      firstByMechanic.set(event.mechanicId, { slot: event.slot, count: 1 });
+    }
+  }
+  return [...firstByMechanic.entries()].map(([mechanicId, { slot, count }]): ChartMarker => {
+    const suffix = count > 1 ? ` (fired ${String(count)} times)` : "";
+    return { x: slot, color: "#f59e0b", label: `${mechanicId} at slot ${String(slot)}${suffix}` };
+  });
+}
+
+/**
+ * Vertical markers over the reserve chart: one per distinct mechanic's
+ * first firing, and a red one for each check that failed at a known
+ * slot -- so the chart shows *why* the reserve moved, not just that it
+ * did (docs/04).
+ */
+function chartMarkers(result: RunResult): readonly ChartMarker[] {
+  const checkMarkers = result.checks
+    .filter((check): check is typeof check & { atSlot: number } => !check.passed && check.atSlot !== null)
+    .map((check): ChartMarker => ({ x: check.atSlot, color: "crimson", label: check.summary }));
+  return [...mechanicMarkers(result.mechanicEvents), ...checkMarkers];
+}
+
 function renderChartsSection(result: RunResult): string {
   const quotePoints = downsample(
     result.timeline.samples.map((sample) => ({ x: sample.slot, y: Number(sample.quoteReserve) })),
@@ -36,6 +73,7 @@ function renderChartsSection(result: RunResult): string {
     width: CHART_WIDTH,
     height: CHART_HEIGHT,
     strokeColor: "var(--chart-line)",
+    markers: chartMarkers(result),
   });
   return `<section><h2>Pool quote reserve over time</h2>${quoteSvg}</section>`;
 }

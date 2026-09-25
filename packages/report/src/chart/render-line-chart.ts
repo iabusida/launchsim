@@ -1,4 +1,14 @@
 import type { ChartPoint } from "./downsample.js";
+import { escapeHtml } from "../escape-html.js";
+
+/** A vertical marker drawn at one x position -- e.g. where a mechanic fired or a check tripped. */
+export interface ChartMarker {
+  readonly x: number;
+  /** A CSS color, e.g. `"crimson"` for a failing check, `"currentColor"` for a neutral mechanic event. */
+  readonly color: string;
+  /** Shown as a native SVG hover tooltip (`<title>`) when given; omit for an unlabeled marker. */
+  readonly label?: string;
+}
 
 /** {@link renderLineChart}'s options. */
 export interface LineChartOptions {
@@ -7,6 +17,8 @@ export interface LineChartOptions {
   /** A CSS color, typically a custom property (e.g. `"var(--chart-line)"`) so the chart follows light/dark mode. */
   readonly strokeColor: string;
   readonly padding?: number;
+  /** Vertical event markers, drawn behind the data line so the line stays crisp on top. */
+  readonly markers?: readonly ChartMarker[];
 }
 
 function round2(value: number): number {
@@ -54,5 +66,13 @@ export function renderLineChart(series: readonly ChartPoint[], opts: LineChartOp
     })
     .join(" ");
 
-  return `${svgOpen}<polyline points="${points}" fill="none" stroke="${opts.strokeColor}" stroke-width="2" /></svg>`;
+  const markers = (opts.markers ?? [])
+    .map((marker) => {
+      const x = round2(scale(marker.x, minX, maxX, opts.width, padding, false));
+      const line = `<line x1="${String(x)}" y1="0" x2="${String(x)}" y2="${String(opts.height)}" stroke="${marker.color}" stroke-width="1" stroke-dasharray="3,3" />`;
+      return marker.label ? `<g><title>${escapeHtml(marker.label)}</title>${line}</g>` : line;
+    })
+    .join("");
+
+  return `${svgOpen}${markers}<polyline points="${points}" fill="none" stroke="${opts.strokeColor}" stroke-width="2" /></svg>`;
 }

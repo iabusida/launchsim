@@ -64,4 +64,51 @@ describe("renderLineChart", () => {
     const svg = renderLineChart([{ x: 0, y: 0 }], OPTS);
     expect(svg).not.toContain("<script");
   });
+
+  describe("markers", () => {
+    const series = [
+      { x: 0, y: 0 },
+      { x: 10, y: 10 },
+    ];
+
+    it("renders a vertical line at the marker's scaled x position", () => {
+      const svg = renderLineChart(series, { ...OPTS, markers: [{ x: 5, color: "red" }] });
+      expect(svg).toContain('<line x1="50" y1="0" x2="50" y2="50" stroke="red"');
+    });
+
+    it("wraps a labeled marker in <title> for a hover tooltip, escaping the label", () => {
+      const svg = renderLineChart(series, {
+        ...OPTS,
+        markers: [{ x: 5, color: "red", label: '<script>alert(1)</script> & "quotes"' }],
+      });
+      expect(svg).toContain("<title>&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;quotes&quot;</title>");
+      expect(svg).not.toContain("<script>alert(1)</script>");
+    });
+
+    it("renders an unlabeled marker without a <title>", () => {
+      const svg = renderLineChart(series, { ...OPTS, markers: [{ x: 5, color: "red" }] });
+      expect(svg).not.toContain("<title>");
+    });
+
+    it("renders markers before the polyline, so the data line draws on top", () => {
+      const svg = renderLineChart(series, { ...OPTS, markers: [{ x: 5, color: "red" }] });
+      expect(svg.indexOf("<line")).toBeLessThan(svg.indexOf("<polyline"));
+    });
+
+    it("renders no marker lines when markers is omitted", () => {
+      const svg = renderLineChart(series, OPTS);
+      expect(svg).not.toContain("<line");
+    });
+
+    it("renders multiple markers in the given order", () => {
+      const svg = renderLineChart(series, {
+        ...OPTS,
+        markers: [
+          { x: 2, color: "gray" },
+          { x: 8, color: "crimson" },
+        ],
+      });
+      expect(svg.indexOf('stroke="gray"')).toBeLessThan(svg.indexOf('stroke="crimson"'));
+    });
+  });
 });

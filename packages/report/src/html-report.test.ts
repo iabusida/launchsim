@@ -164,4 +164,98 @@ describe("renderHtmlReport", () => {
     const input = result();
     expect(renderHtmlReport(input, { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } })).toBe(renderHtmlReport(input, { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } }));
   });
+
+  describe("chart markers", () => {
+    it("marks each mechanic event on the chart, labeled with its id and slot", () => {
+      const html = renderHtmlReport(result(), { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } });
+      expect(html).toContain("<title>lpBurn at slot 50</title>");
+    });
+
+    it("marks only a mechanic's first firing when it fires repeatedly, noting the total count, so a 48-firing mechanic isn't 48 overlapping lines", () => {
+      const html = renderHtmlReport(
+        result({
+          mechanicEvents: [
+            { slot: 100, mechanicId: "lpBurn", baseBurned: 1n, quoteSpent: 0n },
+            { slot: 200, mechanicId: "lpBurn", baseBurned: 1n, quoteSpent: 0n },
+            { slot: 300, mechanicId: "lpBurn", baseBurned: 1n, quoteSpent: 0n },
+          ],
+        }),
+        { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } },
+      );
+      expect(html).toContain("<title>lpBurn at slot 100 (fired 3 times)</title>");
+      expect(html).not.toContain("at slot 200");
+      expect(html).not.toContain("at slot 300");
+    });
+
+    it("marks the first firing of each distinct mechanic separately", () => {
+      const html = renderHtmlReport(
+        result({
+          mechanicEvents: [
+            { slot: 100, mechanicId: "lpBurn", baseBurned: 1n, quoteSpent: 0n },
+            { slot: 150, mechanicId: "feeBuyback", baseBurned: 0n, quoteSpent: 1n },
+            { slot: 200, mechanicId: "lpBurn", baseBurned: 1n, quoteSpent: 0n },
+          ],
+        }),
+        { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } },
+      );
+      expect(html).toContain("<title>lpBurn at slot 100 (fired 2 times)</title>");
+      expect(html).toContain("<title>feeBuyback at slot 150</title>");
+    });
+
+    it("marks a failing check with an atSlot, labeled with its summary", () => {
+      const html = renderHtmlReport(result(), { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } });
+      expect(html).toContain("<title>pool quote fell to 18% of peak at hour 31</title>");
+    });
+
+    it("does not mark a passing check, even if it has an atSlot", () => {
+      const html = renderHtmlReport(
+        result({
+          checks: [
+            {
+              id: "x",
+              kind: "quoteNeverBelowPctOfPeak",
+              passed: true,
+              summary: "pool quote never fell below 50%",
+              observed: "6000",
+              threshold: "5000",
+              atSlot: 12_345,
+            },
+          ],
+        }),
+        { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } },
+      );
+      expect(html).not.toContain("<title>pool quote never fell below 50%</title>");
+    });
+
+    it("does not mark a failing check whose atSlot is null", () => {
+      const html = renderHtmlReport(
+        result({
+          checks: [
+            {
+              id: "x",
+              kind: "supplyConcentration",
+              passed: false,
+              summary: "snipers held 12% of supply",
+              observed: "1200",
+              threshold: "1000",
+              atSlot: null,
+            },
+          ],
+        }),
+        { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } },
+      );
+      expect(html).not.toContain("<title>snipers held 12% of supply</title>");
+    });
+
+    it("escapes untrusted check summaries and mechanic ids in marker labels (docs/10)", () => {
+      const html = renderHtmlReport(
+        result({
+          mechanicEvents: [{ slot: 1, mechanicId: "<script>alert(1)</script>", baseBurned: 0n, quoteSpent: 0n }],
+        }),
+        { command: "x", quoteUnit: { symbol: "MON", decimals: 18 } },
+      );
+      expect(html).not.toContain("<script>alert(1)</script>");
+      expect(html).toContain("&lt;script&gt;");
+    });
+  });
 });
