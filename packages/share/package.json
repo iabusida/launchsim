@@ -8,7 +8,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "launchsim-share": "./dist/bin.js"
+    "launchsim-serve": "./dist/bin.js"
   },
   "exports": {
     ".": {

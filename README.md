@@ -149,6 +149,19 @@ block time ... · submitted by 0x6160951C...a9CFE · 0/1 checks passed · hash m
 
 `ReportRegistry` is a write-once contract: no admin, no upgradeability, no funds held, one function (`record`) that can never overwrite an existing entry. It's live on **Monad testnet** (chain 10143) at [`0x15234E82cD27D56613C3D34679D903eAe2C3CFd1`](https://testnet.monadscan.com/address/0x15234E82cD27D56613C3D34679D903eAe2C3CFd1), source-verified on Sourcify. The share page (`@launchsim/share`) reads the chain live and shows one of three states — **Recorded**, **Not recorded**, or **Mismatch** (if someone tampers with the stored report, it re-hashes to a *different*, unrecorded value, so tampering surfaces honestly as "not recorded," never a false "verified"). Mainnet deployment is pending — that step needs a funded wallet and a human signature, deliberately outside this tool's reach.
 
+### 4. See it on the share page
+
+`launchsim publish` writes each report to `launchsim-report/published/<runId>/result.json` — the share page reads that directory:
+
+```bash
+$ export LAUNCHSIM_RPC_URL=https://testnet-rpc.monad.xyz
+$ export LAUNCHSIM_REGISTRY_ADDRESS=0x15234E82cD27D56613C3D34679D903eAe2C3CFd1
+$ pnpm exec launchsim-serve
+launchsim share page listening on http://localhost:3000
+```
+
+Open `http://localhost:3000/r/<runId>` for the report page, or `/badge/<runId>.png` for the social card. `launchsim-serve` is its own binary (`@launchsim/share`'s `bin`), not a `launchsim run/publish/verify` subcommand — `pnpm exec` finds it the same way it finds `launchsim` itself.
+
 ### Browse every recorded report
 
 `/r/:id` only helps if you already know a report's hash. [`indexer/`](./indexer) is a standalone [Envio HyperIndex](https://docs.envio.dev) project that indexes `ReportRegistry`'s `ReportRecorded` event straight off Monad testnet via **HyperSync** (natively supported for chain 10143 — no RPC-polling fallback needed), and the share page's `GET /reports` queries it to list every report ever recorded, newest first — no hash required. A deployment that hasn't stood up the indexer shows an honest "report index is not configured" page rather than a crash or a fake empty list. See [`indexer/README.md`](./indexer/README.md) to run it (needs a free Envio API token you create yourself — this project never creates that account for you, same as it never touches your wallet).

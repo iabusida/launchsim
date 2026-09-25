@@ -6,7 +6,7 @@ import { createFsReportStore } from "./report-store.js";
 import { createEnvioReportsIndexClient } from "./reports-index.js";
 
 /**
- * `launchsim serve` (docs/12): reads `LAUNCHSIM_RPC_URL`,
+ * `launchsim-serve` (docs/12): reads `LAUNCHSIM_RPC_URL`,
  * `LAUNCHSIM_REGISTRY_ADDRESS`, `LAUNCHSIM_CHAIN_ID` only here and in
  * `cli` (docs/12's Config section) -- never in `core`, `report`, or
  * `registry`, which take these as plain function arguments instead.

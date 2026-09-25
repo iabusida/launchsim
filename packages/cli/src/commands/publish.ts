@@ -56,7 +56,7 @@ function viemSnippet(
  * the exact `cast send` command and a viem snippet for the human to run
  * with their own wallet -- this never signs or holds a key (docs/08
  * golden rule 7). Also copies the report to
- * `<reportDir>/published/<runId>/result.json` so `launchsim serve` can
+ * `<reportDir>/published/<runId>/result.json` so `launchsim-serve` can
  * find it (docs/05: `runId` is the report hash's first 16 hex chars).
  */
 export async function publishCommand(

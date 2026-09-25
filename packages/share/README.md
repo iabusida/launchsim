@@ -4,7 +4,7 @@ The share page (docs/12): `GET /r/:id` (HTML report + chain record panel),
 `GET /r/:id/result.json`, `GET /badge/:id.png`. A Hono app, testable with
 `app.request()` and no real network.
 
-## Config (`launchsim serve`)
+## Config (`launchsim-serve`)
 
 Read only here and in `cli` (never in `core`/`report`/`registry`):
 
