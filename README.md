@@ -153,6 +153,8 @@ block time ... · submitted by 0x6160951C...a9CFE · 0/1 checks passed · hash m
 
 `/r/:id` only helps if you already know a report's hash. [`indexer/`](./indexer) is a standalone [Envio HyperIndex](https://docs.envio.dev) project that indexes `ReportRegistry`'s `ReportRecorded` event straight off Monad testnet via **HyperSync** (natively supported for chain 10143 — no RPC-polling fallback needed), and the share page's `GET /reports` queries it to list every report ever recorded, newest first — no hash required. A deployment that hasn't stood up the indexer shows an honest "report index is not configured" page rather than a crash or a fake empty list. See [`indexer/README.md`](./indexer/README.md) to run it (needs a free Envio API token you create yourself — this project never creates that account for you, same as it never touches your wallet).
 
+It's deployed for real, not just designed: **live on [Envio Cloud](https://envio.dev)**, synced 100% against Monad testnet, indexing via HyperSync at `https://indexer.dev.hyperindex.xyz/81a4159/v1/graphql` — query it directly, or point `LAUNCHSIM_INDEXER_URL` at it to see `/reports` populated with real data. (This is a free-tier development endpoint, not a pinned production URL — Envio's dev plan can retire it after sustained inactivity, so treat it as a live demo link rather than a permanent API.)
+
 ## AI Infrastructure: crash-test a scenario from an agent
 
 `@launchsim/mcp` exposes the same engine over the [Model Context Protocol](https://modelcontextprotocol.io), so any MCP client — Claude Code, Cursor, or your own agent — can crash-test a scenario config directly, no CLI required:

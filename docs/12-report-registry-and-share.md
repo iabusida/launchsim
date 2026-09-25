@@ -103,6 +103,8 @@ Open Graph / Twitter card meta tags point at `/badge/:id.png` so links unfurl on
 
 Running the indexer yourself needs a free Envio API token (`envio.dev/app/api-tokens` -- this project never creates that account for you) and, for `envio dev`, Docker or Podman. See `indexer/README.md`.
 
+Deployed for real: live on Envio Cloud (free/development plan) at `https://indexer.dev.hyperindex.xyz/81a4159/v1/graphql`, synced 100% against Monad testnet, verified by querying it with the actual `createEnvioReportsIndexClient` and getting both real recorded reports back correctly typed. A development-plan endpoint, not a pinned production URL.
+
 ## 4. `cli publish`
 
 `launchsim publish ./launchsim-report --uri https://<host>/r/<id>` prints the exact `cast send` command (and a viem snippet) for the human to run with their own wallet. It does not sign. After the tx, `launchsim verify <id>` reads the chain and prints the panel result.

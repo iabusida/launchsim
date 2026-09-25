@@ -41,4 +41,6 @@ This is a standalone project, deliberately **outside** the repo's pnpm workspace
 
 ## Deploying
 
-Not deployed yet -- this is local-only so far, same status as `ReportRegistry`'s mainnet deployment (`CLAUDE.md` §10): both are blocked on a human doing an account/wallet step this tool deliberately doesn't do itself. [Envio Cloud](https://docs.envio.dev/docs/HyperIndex/hosted-service) is the straightforward next step once you're ready to give `/reports` a stable, always-on `LAUNCHSIM_INDEXER_URL`.
+Live on [Envio Cloud](https://docs.envio.dev/docs/HyperIndex/hosted-service) (free/development plan) at `https://indexer.dev.hyperindex.xyz/81a4159/v1/graphql` -- GitHub App connected to `iabusida/launchsim` with root directory `indexer` and config file `config.yaml`, deploying automatically on push to `main`. Synced 100% against Monad testnet at deploy time.
+
+This is a development-plan endpoint, not a pinned production one -- Envio's free tier can delete a deployment after 20GB storage, 30 days of age, or roughly a week of zero requests (with a grace/read-only period first; see [Envio's deployment limits](https://docs.envio.dev/docs/HyperIndex/hosted-service-deployment#development-plan-fair-usage-policy)). "Promote to production" for a static endpoint is a paid-plan feature, not enabled here. If this URL ever stops responding, redeploy from the Envio Cloud dashboard's "Latest Commits" list and update `LAUNCHSIM_INDEXER_URL` if the endpoint changes.
