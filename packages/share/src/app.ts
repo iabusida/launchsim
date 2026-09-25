@@ -22,31 +22,58 @@ export interface CreateAppOptions {
   readonly reportsIndex?: ReportsIndexClient;
 }
 
+/** Same theme as `@launchsim/report`'s `renderHtmlReport`, so `/reports` reads as part of the same product, not a bolted-on page. */
+const REPORTS_PAGE_STYLE = `<style>
+  :root { --bg: #ffffff; --fg: #111111; --dim: #6b7280; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0b0b0b; --fg: #eeeeee; --dim: #9ca3af; } }
+  :root[data-theme="dark"] { --bg: #0b0b0b; --fg: #eeeeee; --dim: #9ca3af; }
+  body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; margin: 0 auto; max-width: 720px; padding: 16px; }
+  .dim { color: var(--dim); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
+  .badge.pass { color: green; border: 1px solid green; } .badge.fail { color: crimson; border: 1px solid crimson; }
+  table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+  td, th { border: 1px solid currentColor; padding: 6px 10px; text-align: left; }
+  a { color: inherit; }
+  code { font-size: 0.9em; }
+</style>`;
+
 function renderReportsIndexUnavailablePage(): string {
-  return `<!doctype html><html><head><title>launchsim reports</title></head><body>
-<h1>Reports</h1>
-<p>This deployment's report index is not configured.</p>
+  return `<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>launchsim reports</title>${REPORTS_PAGE_STYLE}</head>
+<body>
+<h1>Reports recorded on Monad</h1>
+<p class="dim">This deployment's report index is not configured.</p>
 </body></html>`;
 }
 
 function renderReportsListPage(reports: readonly IndexedReport[]): string {
-  const rows =
+  const body =
     reports.length === 0
-      ? "<p>No reports recorded yet.</p>"
-      : `<ul>${reports
-          .map(
-            (r) => `<li>
-  <a href="/r/${escapeHtml(r.id)}">${escapeHtml(r.id)}</a>
-  &middot; ${String(r.checksPassed)}/${String(r.checksTotal)} checks passed
-  &middot; submitted by ${escapeHtml(r.submitter)}
-  &middot; <a href="https://testnet.monadscan.com/tx/${escapeHtml(r.transactionHash)}">tx</a>
-</li>`,
-          )
-          .join("")}</ul>`;
-  return `<!doctype html><html><head><title>launchsim reports</title></head><body>
+      ? '<p class="dim">No reports recorded yet.</p>'
+      : `<table>
+<thead><tr><th>Report</th><th>Result</th><th>Submitter</th><th>Tx</th></tr></thead>
+<tbody>
+${reports
+  .map((r) => {
+    const passed = r.checksTotal > 0 && r.checksPassed === r.checksTotal;
+    return `<tr>
+  <td><a href="/r/${escapeHtml(r.id)}"><code>${escapeHtml(r.id.slice(0, 18))}&hellip;</code></a></td>
+  <td><span class="badge ${passed ? "pass" : "fail"}">${passed ? "PASS" : "FAIL"}</span> <span class="dim">${String(r.checksPassed)}/${String(r.checksTotal)} checks passed</span></td>
+  <td class="dim"><code>${escapeHtml(r.submitter.slice(0, 10))}&hellip;</code></td>
+  <td><a href="https://testnet.monadscan.com/tx/${escapeHtml(r.transactionHash)}">tx</a></td>
+</tr>`;
+  })
+  .join("\n")}
+</tbody>
+</table>`;
+  return `<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>launchsim reports</title>${REPORTS_PAGE_STYLE}</head>
+<body>
 <h1>Reports recorded on Monad</h1>
-<p>Recording proves a report hasn't changed since it was published and who published it. It says nothing about whether a token is safe.</p>
-${rows}
+<p class="dim">Recording proves a report hasn't changed since it was published and who published it. It says nothing about whether a token is safe.</p>
+${body}
 </body></html>`;
 }
 
