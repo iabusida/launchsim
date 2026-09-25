@@ -4,6 +4,7 @@ import { reportRegistryAbi } from "@launchsim/registry";
 import type { RunResult } from "@launchsim/report";
 import { createApp } from "./app.js";
 import { createInMemoryReportStore } from "./report-store.js";
+import { createInMemoryReportsIndexClient, type IndexedReport } from "./reports-index.js";
 
 const REGISTRY_ADDRESS: Address = "0x1111111111111111111111111111111111111111";
 const ZERO_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
@@ -187,5 +188,81 @@ describe("GET /r/:id", () => {
     const app = testApp();
     const res = await app.request("/r/nope");
     expect(res.status).toBe(404);
+  });
+});
+
+function indexedReport(overrides: Partial<IndexedReport> = {}): IndexedReport {
+  return {
+    id: "40aa14dd7eb317f8",
+    submitter: "0x6160951C000000000000000000000000000a9CFE",
+    scenarioHash: `0x${"a".repeat(64)}`,
+    checksPassed: 1,
+    checksTotal: 1,
+    toolVersion: "0.1.0",
+    uri: "https://example.com/r/40aa14dd7eb317f8",
+    recordedAtBlock: 65183300n,
+    recordedAtTimestamp: 1790300291n,
+    transactionHash: "0xb3c9ea96f322b202da53dc4029772153c6a3843e2f1adaf5e191ddc02177eac2",
+    ...overrides,
+  };
+}
+
+describe("GET /reports", () => {
+  it("says the index isn't configured when no reportsIndex was given", async () => {
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+    });
+    const res = await app.request("/reports");
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain("not configured");
+  });
+
+  it("lists indexed reports as links to their /r/:id page, most recent first", async () => {
+    const older = indexedReport({ id: "old-run", recordedAtTimestamp: 100n, checksPassed: 0 });
+    const newer = indexedReport({ id: "new-run", recordedAtTimestamp: 200n });
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+      reportsIndex: createInMemoryReportsIndexClient([older, newer]),
+    });
+    const res = await app.request("/reports");
+    const html = await res.text();
+    expect(res.status).toBe(200);
+    expect(html).toContain('href="/r/new-run"');
+    expect(html).toContain('href="/r/old-run"');
+    expect(html.indexOf("new-run")).toBeLessThan(html.indexOf("old-run"));
+    expect(html).toContain("1/1 checks passed");
+    expect(html).toContain("0/1 checks passed");
+  });
+
+  it("shows an honest empty state when the index has no reports yet", async () => {
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+      reportsIndex: createInMemoryReportsIndexClient([]),
+    });
+    const html = await (await app.request("/reports")).text();
+    expect(html).toContain("No reports recorded yet");
+  });
+
+  it("never claims a token is safe, audited, or rug-proof on the browse page (docs/08)", async () => {
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+      reportsIndex: createInMemoryReportsIndexClient([indexedReport()]),
+    });
+    const html = (await (await app.request("/reports")).text()).toLowerCase();
+    expect(html).not.toContain("verified safe");
+    expect(html).not.toContain("rug-proof");
+    expect(html).not.toContain("audited");
   });
 });

@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: launchsim-indexer
+description: >
+  Indexes ReportRecorded events from launchsim's ReportRegistry contract on
+  Monad testnet, so the share page can list every crash-test report ever
+  recorded without a caller needing to already know its hash.
+schema: ./schema.graphql
+contracts:
+  - name: ReportRegistry
+    abi_file_path: ./abis/ReportRegistry.json
+    handler: ./src/EventHandlers.ts
+    events:
+      - event: ReportRecorded
+chains:
+  # Monad testnet (10143) is natively HyperSync-supported, so this indexer
+  # reads from HyperSync, not a plain JSON-RPC polling loop -- no `rpc:`
+  # override needed (docs/12, sponsor bounty: Envio HyperIndex/HyperSync).
+  - id: 10143
+    start_block: 65183261 # ReportRegistry's deployment block (contracts/broadcast/Deploy.s.sol/10143)
+    contracts:
+      - name: ReportRegistry
+        address: "0x15234E82cD27D56613C3D34679D903eAe2C3CFd1"

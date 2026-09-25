@@ -4,6 +4,7 @@ import { escapeHtml, renderHtmlReport, toCanonicalJson, type RunResult } from "@
 import { getChainRecordPanel, type ChainRecordPanel } from "@launchsim/registry";
 import type { ReportStore } from "./report-store.js";
 import { renderBadgePng } from "./badge.js";
+import type { IndexedReport, ReportsIndexClient } from "./reports-index.js";
 
 /** {@link createApp}'s options. */
 export interface CreateAppOptions {
@@ -12,6 +13,41 @@ export interface CreateAppOptions {
   readonly registryAddress: Address;
   /** Absolute origin used to build the `og:image` URL, e.g. `https://launchsim.example`. */
   readonly baseUrl: string;
+  /**
+   * Backs `/reports` (docs/12): lists every report the `indexer/` Envio
+   * project has indexed from `ReportRecorded`. Omit it on a deployment
+   * that hasn't stood up the indexer yet -- `/reports` then says so
+   * honestly instead of pretending an empty list is the whole history.
+   */
+  readonly reportsIndex?: ReportsIndexClient;
+}
+
+function renderReportsIndexUnavailablePage(): string {
+  return `<!doctype html><html><head><title>launchsim reports</title></head><body>
+<h1>Reports</h1>
+<p>This deployment's report index is not configured.</p>
+</body></html>`;
+}
+
+function renderReportsListPage(reports: readonly IndexedReport[]): string {
+  const rows =
+    reports.length === 0
+      ? "<p>No reports recorded yet.</p>"
+      : `<ul>${reports
+          .map(
+            (r) => `<li>
+  <a href="/r/${escapeHtml(r.id)}">${escapeHtml(r.id)}</a>
+  &middot; ${String(r.checksPassed)}/${String(r.checksTotal)} checks passed
+  &middot; submitted by ${escapeHtml(r.submitter)}
+  &middot; <a href="https://testnet.monadscan.com/tx/${escapeHtml(r.transactionHash)}">tx</a>
+</li>`,
+          )
+          .join("")}</ul>`;
+  return `<!doctype html><html><head><title>launchsim reports</title></head><body>
+<h1>Reports recorded on Monad</h1>
+<p>Recording proves a report hasn't changed since it was published and who published it. It says nothing about whether a token is safe.</p>
+${rows}
+</body></html>`;
 }
 
 const PANEL_COPY: Readonly<Record<ChainRecordPanel["status"], string>> = {
@@ -79,6 +115,14 @@ export function createApp(opts: CreateAppOptions): Hono {
       return c.body("not found", 404);
     }
     return c.body(new Uint8Array(renderBadgePng(result)), 200, { "Content-Type": "image/png" });
+  });
+
+  app.get("/reports", async (c) => {
+    if (!opts.reportsIndex) {
+      return c.html(renderReportsIndexUnavailablePage());
+    }
+    const reports = await opts.reportsIndex.listReports();
+    return c.html(renderReportsListPage(reports));
   });
 
   app.get("/r/:id", async (c) => {

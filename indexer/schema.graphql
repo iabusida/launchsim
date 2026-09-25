@@ -1,0 +1,18 @@
+"""
+One recorded report, mirrored from `ReportRegistry.ReportRecorded` (docs/12).
+The id is the report's hash, exactly as `ReportRegistry.record` was called
+with it -- looking it up is how the share page's `/r/:id` route already
+finds a record; this entity is what makes the *set* of all of them browsable.
+"""
+type Report {
+  id: ID! # reportHash, 0x-prefixed 32-byte hex
+  submitter: String!
+  scenarioHash: String!
+  checksPassed: Int!
+  checksTotal: Int!
+  toolVersion: String!
+  uri: String!
+  recordedAtBlock: BigInt!
+  recordedAtTimestamp: BigInt!
+  transactionHash: String!
+}

@@ -80,6 +80,7 @@ interface IReportRegistry {
 | `GET /r/:id` | HTML report page with a **Chain record** panel |
 | `GET /r/:id/result.json` | The stored `RunResult` |
 | `GET /badge/:id.png` | Social card image (PASS/FAIL, worst failing check, "simulated · not an audit") |
+| `GET /reports` | HTML list of every report `indexer/` has indexed from `ReportRecorded`, newest first |
 
 Chain record panel logic (runs server-side, and again in the browser via WebCrypto + viem for independent checking):
 
@@ -93,6 +94,14 @@ Chain record panel logic (runs server-side, and again in the browser via WebCryp
 Wording rules: never "verified safe", "audited", "certified". The panel explains in one line: *"Recording proves this report hasn't changed since it was published and who published it. It says nothing about whether the token is safe."*
 
 Open Graph / Twitter card meta tags point at `/badge/:id.png` so links unfurl on X and Farcaster.
+
+## 3a. `indexer/` — browsing every report (Envio HyperIndex)
+
+`/r/:id` only works if you already know a report's hash. `indexer/` is a standalone [Envio HyperIndex](https://docs.envio.dev) project (outside the pnpm workspace, alongside `contracts/`, per §5 of `CLAUDE.md`) that indexes `ReportRegistry`'s `ReportRecorded` event on Monad testnet -- natively via HyperSync, since Monad testnet (chain 10143) is HyperSync-supported, not a plain RPC-polling loop. It exposes a GraphQL API that `packages/share`'s `createEnvioReportsIndexClient` queries to render `/reports`.
+
+`reportsIndex` on `createApp`'s options is optional: a deployment that hasn't stood up the indexer yet gets an honest "report index is not configured" page instead of a crash or a fake empty list. Wire it in `share`'s `bin.ts` by setting `LAUNCHSIM_INDEXER_URL` to the indexer's `/v1/graphql` endpoint.
+
+Running the indexer yourself needs a free Envio API token (`envio.dev/app/api-tokens` -- this project never creates that account for you) and, for `envio dev`, Docker or Podman. See `indexer/README.md`.
 
 ## 4. `cli publish`
 
