@@ -21,6 +21,8 @@ keys/
 *.keypair.json
 privatekey*
 *.key
+*apikey*
+*api-key*
 
 # Editor / OS
 .DS_Store
