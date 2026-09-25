@@ -35,7 +35,7 @@ export async function verifyCommand(
 ): Promise<0 | 1 | 2> {
   let json: string;
   try {
-    json = await io.readFile(`${reportDir}/published/${runId}/result.json`);
+    json = await io.readFile(`${reportDir}/${runId}/result.json`);
   } catch (error) {
     io.log(`error: ${errorMessage(error)}`);
     return 2;

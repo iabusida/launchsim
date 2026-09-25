@@ -72,12 +72,19 @@ describe("publishCommand", () => {
     expect(lines.join("\n")).toMatch(/runId: [0-9a-f]{16}/);
   });
 
-  it("writes the report under <reportDir>/published/<runId>/result.json for the share page to find", async () => {
+  it("writes the report under <reportDir>/<runId>/result.json, matching ReportStore's layout exactly, for the share page to find", async () => {
     const { io, files } = fakeIo(toCanonicalJson(result()));
     await publishCommand("launchsim-report", "https://example.com/r/abc", REGISTRY_ADDRESS, io);
-    const publishedPaths = [...files.keys()].filter((p) => p.startsWith("launchsim-report/published/"));
-    expect(publishedPaths).toHaveLength(1);
-    expect(publishedPaths[0]).toMatch(/^launchsim-report\/published\/[0-9a-f]{16}\/result\.json$/);
+    const runId = [...files.keys()]
+      .map((p) => /^launchsim-report\/([0-9a-f]{16})\/result\.json$/.exec(p)?.[1])
+      .find((match) => match !== undefined);
+    if (!runId) {
+      throw new Error("expected a launchsim-report/<runId>/result.json entry");
+    }
+    expect(runId).toMatch(/^[0-9a-f]{16}$/);
+    expect(files.has(`launchsim-report/${runId}/result.json`)).toBe(true);
+    // Not nested under a `published/` segment -- ReportStore reads <dir>/<runId>/result.json directly.
+    expect([...files.keys()]).not.toContain(`launchsim-report/published/${runId}/result.json`);
   });
 
   it("never signs or asks for a key: no private key or mnemonic appears anywhere in its output", async () => {

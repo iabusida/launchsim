@@ -67,6 +67,21 @@ function fakeIo(fileContent: string) {
 }
 
 describe("verifyCommand", () => {
+  it("reads <reportDir>/<runId>/result.json -- matching both ReportStore's layout and where publishCommand actually writes, no extra path segment", async () => {
+    const client = fakeClient({
+      submitter: ZERO_ADDRESS,
+      recordedAt: 0n,
+      scenarioHash: `0x${"00".repeat(32)}`,
+      checksPassed: 0,
+      checksTotal: 0,
+      toolVersion: "",
+      uri: "",
+    });
+    const readFile = vi.fn(() => Promise.resolve(toCanonicalJson(result())));
+    await verifyCommand("run1", "launchsim-report", client, REGISTRY_ADDRESS, { readFile, log: vi.fn() });
+    expect(readFile).toHaveBeenCalledWith("launchsim-report/run1/result.json");
+  });
+
   it("prints 'Recorded on Monad' and returns exit code 0 when the record matches", async () => {
     const client = fakeClient({
       submitter: SUBMITTER,

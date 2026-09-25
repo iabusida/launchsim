@@ -56,8 +56,10 @@ function viemSnippet(
  * the exact `cast send` command and a viem snippet for the human to run
  * with their own wallet -- this never signs or holds a key (docs/08
  * golden rule 7). Also copies the report to
- * `<reportDir>/published/<runId>/result.json` so `launchsim-serve` can
- * find it (docs/05: `runId` is the report hash's first 16 hex chars).
+ * `<reportDir>/<runId>/result.json` -- matching `ReportStore`'s layout
+ * exactly (`<dir>/<runId>/result.json`, no extra path segment) -- so
+ * `launchsim-serve` finds it under the same `reportDir` by default
+ * (docs/05: `runId` is the report hash's first 16 hex chars).
  */
 export async function publishCommand(
   reportDir: string,
@@ -85,6 +87,6 @@ export async function publishCommand(
   io.log("or, with viem:");
   io.log(viemSnippet(call.address, call.args));
 
-  await io.writeFile(`${reportDir}/published/${runId}/result.json`, json);
+  await io.writeFile(`${reportDir}/${runId}/result.json`, json);
   return 0;
 }

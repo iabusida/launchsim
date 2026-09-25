@@ -151,7 +151,7 @@ block time ... · submitted by 0x6160951C...a9CFE · 0/1 checks passed · hash m
 
 ### 4. See it on the share page
 
-`launchsim publish` writes each report to `launchsim-report/published/<runId>/result.json` — the share page reads that directory:
+`launchsim publish` writes each report to `launchsim-report/<runId>/result.json` — the share page reads that same directory by default:
 
 ```bash
 $ export LAUNCHSIM_RPC_URL=https://testnet-rpc.monad.xyz
