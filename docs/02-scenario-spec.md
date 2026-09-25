@@ -102,5 +102,6 @@ Full catalog in `docs/04-checks-and-report.md`.
 | `scenarios/fee-buyback.ts`    | Same launch, fee-funded buyback         | Passes liquidity check   |
 | `scenarios/whale-exit-mature-pool.ts` | Already-trading CPMM pool, whale dumps, no protection | Fails drawdown check |
 | `scenarios/whale-exit-with-buyback.ts` | Same pool/actors/seed, buyback already running | Passes drawdown check |
+| `scenarios/sniper-supply-share.ts` | Nad.fun-curve launch at its shipped sniper count -- `red_team_scenario`'s target scenario | Passes supply-share check (fails once red-teamed up to 5 snipers) |
 | `scenarios/sniper-block0.ts`  | Plain pump curve with 5 block-0 snipers | Fails sniper-share check |
 | `scenarios/baseline.ts`       | No attackers, retail only               | Passes all (sanity)      |

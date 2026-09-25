@@ -173,7 +173,7 @@ It's deployed for real, not just designed: **live on [Envio Cloud](https://envio
 `@launchsim/mcp` exposes the same engine over the [Model Context Protocol](https://modelcontextprotocol.io), so any MCP client — Claude Code, Cursor, or your own agent — can crash-test a scenario config directly, no CLI required:
 
 - **`crash_test_scenario`** — runs a scenario, returns the report.
-- **`red_team_scenario`** — scales one actor group (snipers, retail, panic sellers) up or down and finds the *smallest* attack that breaks a named check, e.g. "the smallest sniper count that pushes supply concentration over 10% in the first minute." An agent can search for the breaking point instead of a human guessing at parameters.
+- **`red_team_scenario`** — scales one actor group (snipers, retail, panic sellers) up or down and finds the *smallest* attack that breaks a named check. A real linear scan, not a guess: on [`scenarios/sniper-supply-share.ts`](./scenarios/sniper-supply-share.ts) — a launch that passes its supply-concentration check at 1 sniper — `red_team_scenario(scenario, actorIndex: 1, checkKind: "groupSupplyShareBelow", min: 1, max: 40)` actually runs the simulation at every count and returns `Found: scaling actors[1] to 5 breaks "groupSupplyShareBelow" (baseline observed 0, breaking observed 1001)`. It's genuinely non-monotonic past that point (6 snipers measures *lower* than 5) — the exact reason it's a full scan and not a binary search.
 
 `@launchsim/mcp` isn't published yet, so point your MCP client at the built local binary after cloning and building this repo:
 

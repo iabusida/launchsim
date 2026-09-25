@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { ScenarioConfigSchema } from "@launchsim/core";
 import { runScenario } from "./interpreter/run-scenario.js";
+import { findSmallestBreak } from "./interpreter/red-team.js";
 import hourlyBurnLp from "../../../scenarios/hourly-burn-lp.js";
 import feeBuyback from "../../../scenarios/fee-buyback.js";
 import whaleExitMaturePool from "../../../scenarios/whale-exit-mature-pool.js";
 import whaleExitWithBuyback from "../../../scenarios/whale-exit-with-buyback.js";
+import sniperSupplyShare from "../../../scenarios/sniper-supply-share.js";
 
 /**
  * Runs every shipped scenario (docs/02: "core/test/determinism.test.ts
@@ -14,7 +16,7 @@ import whaleExitWithBuyback from "../../../scenarios/whale-exit-with-buyback.js"
  * that this isn't only a launch-day question -- the same mechanic
  * decides whether an already-mature pool survives a whale exit.
  */
-const SCENARIOS = [hourlyBurnLp, feeBuyback, whaleExitMaturePool, whaleExitWithBuyback];
+const SCENARIOS = [hourlyBurnLp, feeBuyback, whaleExitMaturePool, whaleExitWithBuyback, sniperSupplyShare];
 
 describe("shipped scenarios (docs/02)", () => {
   // Explicit timeout: this runs each scenario twice (some spanning 48h of
@@ -59,5 +61,18 @@ describe("shipped scenarios (docs/02)", () => {
     const result = runScenario(ScenarioConfigSchema.parse(whaleExitWithBuyback));
     const check = result.checks.find((c) => c.kind === "maxDrawdownBelow");
     expect(check?.passed).toBe(true);
+  });
+
+  it("sniper-supply-share.ts passes the supply-share check at its shipped sniper count", () => {
+    const result = runScenario(ScenarioConfigSchema.parse(sniperSupplyShare));
+    const check = result.checks.find((c) => c.kind === "groupSupplyShareBelow");
+    expect(check?.passed).toBe(true);
+  });
+
+  it("red-teaming sniper-supply-share.ts finds 5 snipers is enough to break the 10% supply-share check", () => {
+    const config = ScenarioConfigSchema.parse(sniperSupplyShare);
+    const result = findSmallestBreak(config, 1, "groupSupplyShareBelow", { min: 1, max: 40 });
+    expect(result.found).toBe(true);
+    expect(result.breakingValue).toBe(5);
   });
 });
