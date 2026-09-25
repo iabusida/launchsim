@@ -189,6 +189,34 @@ describe("GET /r/:id", () => {
     const res = await app.request("/r/nope");
     expect(res.status).toBe(404);
   });
+
+  it("says a report was recorded on-chain but not hosted here, when the id is indexed but no local result.json exists", async () => {
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+      reportsIndex: createInMemoryReportsIndexClient([indexedReport({ id: "40aa14dd7eb317f8" })]),
+    });
+    const res = await app.request("/r/40aa14dd7eb317f8");
+    expect(res.status).toBe(404);
+    const text = await res.text();
+    expect(text).toContain("recorded on-chain");
+    expect(text).toContain("not hosted");
+  });
+
+  it("still returns a plain 404 for an id that's neither local nor indexed", async () => {
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+      reportsIndex: createInMemoryReportsIndexClient([indexedReport({ id: "40aa14dd7eb317f8" })]),
+    });
+    const res = await app.request("/r/totally-unknown");
+    expect(res.status).toBe(404);
+    expect(await res.text()).toBe("not found");
+  });
 });
 
 function indexedReport(overrides: Partial<IndexedReport> = {}): IndexedReport {
@@ -238,6 +266,20 @@ describe("GET /reports", () => {
     expect(html.indexOf("new-run")).toBeLessThan(html.indexOf("old-run"));
     expect(html).toContain("1/1 checks passed");
     expect(html).toContain("0/1 checks passed");
+  });
+
+  it("links to /r/:runId derived from the on-chain reportHash's first 16 hex chars, not the full 0x-prefixed hash (docs/05)", async () => {
+    const report = indexedReport({ id: "0x40aa14dd7eb317f81305bb47017e4277fb3286611cf037dad7aef9b21244477b" });
+    const app = createApp({
+      store: createInMemoryReportStore(),
+      client: fakeClient(NOT_RECORDED_RESULT),
+      registryAddress: REGISTRY_ADDRESS,
+      baseUrl: "https://example.com",
+      reportsIndex: createInMemoryReportsIndexClient([report]),
+    });
+    const html = await (await app.request("/reports")).text();
+    expect(html).toContain('href="/r/40aa14dd7eb317f8"');
+    expect(html).not.toContain("0x40aa14dd7eb317f81305bb47017e4277fb3286611cf037dad7aef9b21244477b");
   });
 
   it("shows an honest empty state when the index has no reports yet", async () => {

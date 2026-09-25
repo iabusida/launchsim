@@ -47,6 +47,21 @@ function renderReportsIndexUnavailablePage(): string {
 </body></html>`;
 }
 
+const RUN_ID_LENGTH = 16;
+
+/**
+ * `IndexedReport.id` is the full on-chain `reportHash` (a 0x-prefixed
+ * bytes32), but `runId` -- what `/r/:id`, `cli publish`, and
+ * `ReportStore` all key on -- is that hash's first 16 hex chars with no
+ * `0x` prefix (`publish.ts`'s own `hashScenario(...).slice(0, 16)`,
+ * docs/05). Stripping the prefix before truncating is what makes this
+ * match.
+ */
+function runIdFromReportHash(reportHash: string): string {
+  const hex = reportHash.startsWith("0x") ? reportHash.slice(2) : reportHash;
+  return hex.slice(0, RUN_ID_LENGTH);
+}
+
 function renderReportsListPage(reports: readonly IndexedReport[]): string {
   const body =
     reports.length === 0
@@ -57,8 +72,9 @@ function renderReportsListPage(reports: readonly IndexedReport[]): string {
 ${reports
   .map((r) => {
     const passed = r.checksTotal > 0 && r.checksPassed === r.checksTotal;
+    const runId = runIdFromReportHash(r.id);
     return `<tr>
-  <td><a href="/r/${escapeHtml(r.id)}"><code>${escapeHtml(r.id.slice(0, 18))}&hellip;</code></a></td>
+  <td><a href="/r/${escapeHtml(runId)}"><code>${escapeHtml(runId)}</code></a></td>
   <td><span class="badge ${passed ? "pass" : "fail"}">${passed ? "PASS" : "FAIL"}</span> <span class="dim">${String(r.checksPassed)}/${String(r.checksTotal)} checks passed</span></td>
   <td class="dim"><code>${escapeHtml(r.submitter.slice(0, 10))}&hellip;</code></td>
   <td><a href="https://testnet.monadscan.com/tx/${escapeHtml(r.transactionHash)}">tx</a></td>
@@ -156,6 +172,16 @@ export function createApp(opts: CreateAppOptions): Hono {
     const runId = c.req.param("id");
     const result = await opts.store.get(runId);
     if (!result) {
+      if (opts.reportsIndex) {
+        const reports = await opts.reportsIndex.listReports();
+        const isIndexed = reports.some((r) => runIdFromReportHash(r.id) === runId);
+        if (isIndexed) {
+          return c.text(
+            "This report was recorded on-chain, but its full content is not hosted at this deployment.",
+            404,
+          );
+        }
+      }
       return c.text("not found", 404);
     }
     const panel = await getChainRecordPanel(result, opts.client, opts.registryAddress);
