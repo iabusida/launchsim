@@ -100,24 +100,58 @@ Requires Node 22 (`.nvmrc` pins it) and pnpm. `pnpm exec launchsim run scenarios
 
 ## The trust layer: prove the report wasn't edited
 
-A report on its own is just a file — anyone could tweak a number after the fact and repost it. launchsim closes that gap with a real on-chain record, not a screenshot:
+A report on its own is just a file — anyone could tweak a number after the fact and repost it. launchsim closes that gap with a real on-chain record, not a screenshot. Here's the whole flow, start to finish, runnable from a clean machine.
+
+### 1. Install Foundry (for `cast`)
+
+launchsim never signs a transaction for you ([golden rule 7](./CLAUDE.md)) — you sign it yourself with `cast`, Foundry's own CLI. Install it once:
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+
+Full instructions (all platforms): https://book.getfoundry.sh/getting-started/installation
+
+### 2. Create a wallet keystore
 
 ```
+$ cast wallet import my-wallet --interactive
+Enter private key: ...
+`my-wallet` keystore was saved successfully. Address: 0x6160951C...a9CFE
+```
+
+This encrypts your key to a local keystore file on disk — `cast` prompts for it by name (`--account my-wallet`) and asks for your keystore password each time you sign, it's never written in plaintext or touched by launchsim. Fund the printed address with a small amount of testnet MON from Monad's testnet faucet (linked from [Monad's developer docs](https://docs.monad.xyz)) before continuing.
+
+### 3. Run, publish, sign, verify
+
+```
+$ pnpm exec launchsim run scenarios/hourly-burn-lp.ts
+✗ hourly burn from LP   (seed 1 · math mode · launchsim 0.1.0)
+  ✗ pool quote fell to 48% of peak at slot 306000
+
 $ export LAUNCHSIM_REGISTRY_ADDRESS=0x15234E82cD27D56613C3D34679D903eAe2C3CFd1
 $ launchsim publish launchsim-report --uri https://your-share-host/r/<runId>
 runId: e9490ee443dc8eb2
 cast send command:
-cast send 0x15234E82cD27D56613C3D34679D903eAe2C3CFd1 "record(...)" ... --account <keystore>
+cast send 0x15234E82cD27D56613C3D34679D903eAe2C3CFd1 "record(...)" ... --account my-wallet
+
+$ cast send 0x15234E82cD27D56613C3D34679D903eAe2C3CFd1 "record(...)" ... --account my-wallet
+status               1 (success)
 
 $ export LAUNCHSIM_RPC_URL=https://testnet-rpc.monad.xyz
 $ launchsim verify e9490ee443dc8eb2
 Recorded on Monad
-block time ... · submitted by 0x... · 0/1 checks passed · hash matches
+block time ... · submitted by 0x6160951C...a9CFE · 0/1 checks passed · hash matches
 ```
 
-`launchsim` never asks for, loads, or stores a private key ([golden rule 7](./CLAUDE.md)) — `publish` computes the report's hash and prints the exact transaction for you to sign yourself, with your own wallet or a Foundry keystore. It never signs anything on your behalf.
+`launchsim publish` computes the report's hash and prints the exact `cast send` command, ready to copy-paste — it never signs anything itself. Run the printed command yourself (swap `--account my-wallet` for whatever you named your own keystore in step 2), then `launchsim verify` reads the chain back and shows the same three states (**Recorded** / **Not recorded** / **Mismatch**) the share page does.
 
 `ReportRegistry` is a write-once contract: no admin, no upgradeability, no funds held, one function (`record`) that can never overwrite an existing entry. It's live on **Monad testnet** (chain 10143) at [`0x15234E82cD27D56613C3D34679D903eAe2C3CFd1`](https://testnet.monadscan.com/address/0x15234E82cD27D56613C3D34679D903eAe2C3CFd1), source-verified on Sourcify. The share page (`@launchsim/share`) reads the chain live and shows one of three states — **Recorded**, **Not recorded**, or **Mismatch** (if someone tampers with the stored report, it re-hashes to a *different*, unrecorded value, so tampering surfaces honestly as "not recorded," never a false "verified"). Mainnet deployment is pending — that step needs a funded wallet and a human signature, deliberately outside this tool's reach.
+
+### Browse every recorded report
+
+`/r/:id` only helps if you already know a report's hash. [`indexer/`](./indexer) is a standalone [Envio HyperIndex](https://docs.envio.dev) project that indexes `ReportRegistry`'s `ReportRecorded` event straight off Monad testnet via **HyperSync** (natively supported for chain 10143 — no RPC-polling fallback needed), and the share page's `GET /reports` queries it to list every report ever recorded, newest first — no hash required. A deployment that hasn't stood up the indexer shows an honest "report index is not configured" page rather than a crash or a fake empty list. See [`indexer/README.md`](./indexer/README.md) to run it (needs a free Envio API token you create yourself — this project never creates that account for you, same as it never touches your wallet).
 
 ## AI Infrastructure: crash-test a scenario from an agent
 
@@ -171,10 +205,11 @@ scenario.ts ──► Engine (core) ──► RunResult (deterministic JSON)
 | `@launchsim/adapters` | Market models: `math/pump-curve`, `math/cpmm`, `math/nadfun-curve` (Nad.fun's real curve shape, parameters cited from its public contracts). |
 | `@launchsim/report` | `RunResult` → terminal text, JSON, HTML with inline SVG charts (no chart library, no CDN). |
 | `@launchsim/registry` | viem client for `ReportRegistry`: builds (never signs) record calls, reads records back. |
-| `@launchsim/share` | Hono app serving `/r/:id` (report + live on-chain status) and `/badge/:id.png`. |
+| `@launchsim/share` | Hono app serving `/r/:id`, `/reports`, `/badge/:id.png`. |
 | `@launchsim/mcp` | MCP server: `crash_test_scenario`, `red_team_scenario`. |
 | `@launchsim/cli` | `launchsim run` / `publish` / `verify`. |
 | `contracts/` | `ReportRegistry.sol` (Foundry): write-once, no admin, no upgradeability, no funds held. |
+| `indexer/` | Envio HyperIndex project: indexes `ReportRecorded` via HyperSync, backs `/reports`. |
 
 Dependency direction is one-way — `cli`/`mcp`/`share` → `report`/`adapters`/`registry` → `core` — and `core` never touches the network, filesystem, or a clock that isn't injected, which is what makes every run byte-for-byte reproducible from its seed.
 
