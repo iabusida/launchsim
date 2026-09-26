@@ -7,6 +7,8 @@
 
 Built for the **Monad Metropolis hackathon** (track: Trust/Identity & AI Infrastructure), submission Oct 13, 2026.
 
+**Demo video:** _(link goes here once it's uploaded for submission)_
+
 ---
 
 ## The problem
@@ -230,7 +232,7 @@ Dependency direction is one-way — `cli`/`mcp`/`share` → `report`/`adapters`/
 
 ## Why this is more than a demo
 
-- **~680 TypeScript tests, 100% line/branch/function coverage, on every package** (`core`, `adapters`, `report`, `registry`, `share`, `cli`, `mcp`) — enforced in CI, not just claimed.
+- **713 TypeScript tests, 100% line/branch/function coverage, on every package** (`core`, `adapters`, `report`, `registry`, `share`, `cli`, `mcp`) — enforced in CI, not just claimed.
 - **Mutation-tested, not just coverage-tested.** [Stryker](https://stryker-mutator.io) mutation score on the core engine is ~99% (threshold 85%, runs nightly in CI) — coverage proves a line *ran*; mutation proves a test would actually *notice* if that line broke.
 - **22 Solidity tests** (unit, fuzz, a stateful invariant suite, a deploy-script test) on `ReportRegistry.sol`, 100% line/branch coverage via `forge coverage`, [Slither](https://github.com/crytic/slither) static-analysis clean.
 - **Every claim above is checked in CI on every push** — `verify` (lint/typecheck/build), `test` (the full suite with coverage gates), `security` (`pnpm audit`, gitleaks secret scanning) — and `main` is branch-protected: no force-pushes, no deletions, CI must pass.
