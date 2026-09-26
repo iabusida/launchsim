@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/iabusida/launchsim/actions/workflows/ci.yml/badge.svg)](https://github.com/iabusida/launchsim/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+[![M8ven Score](https://m8ven.ai/badge/mcp/iabusida-launchsim-1dk9jg)](https://m8ven.ai/mcp/iabusida/launchsim)
 
 **Crash-test a token's market mechanics — at launch, or any time after — against snipers, bundlers, whales, and bad tokenomics, before real money finds out. Then record the result on-chain so nobody can fake it.**
 
